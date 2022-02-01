@@ -8,6 +8,9 @@ import { UsersModule } from './users/users.module';
 import { ReportsModule } from './reports/reports.module';
 import { User } from './users/user.entity';  // step 3 for create entity
 import { Report } from './reports/report.entity';  // step 3 for create entity
+import { DomainModule } from './domain/domain.module';
+
+
 // following format required because nestjs tsconfig settings
 const cookieSession = require('cookie-session');
 
@@ -22,7 +25,7 @@ const cookieSession = require('cookie-session');
       envFilePath: `.env.${process.env.NODE_ENV}` // reads appropriate .env file based on NODE_ENV
     }),   
     // -- Below used when using ormconfig.js as the config source
-    TypeOrmModule.forRoot(),  // reads config from ormconfig.js or env variables
+    TypeOrmModule.forRoot(), DomainModule  // reads config from ormconfig.js or env variables
     // -- Below used for nestjs specific config only
     // TypeOrmModule.forRootAsync({   
     //     inject: [ConfigService],

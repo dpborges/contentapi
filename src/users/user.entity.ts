@@ -23,7 +23,7 @@ export class User {
     // the 1st function returns our Report Entity class. We wrap the Entity return type in
     // a function to avoid circular reference between User and Report.
     // The second function returns a user for a give report.
-    @OneToMany(() => Report,  (report) => report.user)
+    @OneToMany(() => Report,  (report) => report.user) // read backwards; one user has 
     reports: Report[];
 
     @AfterInsert()

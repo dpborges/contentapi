@@ -1,0 +1,58 @@
+###  Create a new domain
+POST http://localhost:3000/domains
+content-type: application/json
+
+{
+  "name": "dummyDomain",
+  "base_url": "/blog",
+  "acct_id": 3
+}
+
+
+### Get domain by id
+GET http://localhost:3000/domains/4
+
+
+### Get domain by acctid
+GET http://localhost:3000/domains?acctid=2
+
+
+### Update domain name or base_url
+PATCH http://localhost:3000/domains/2
+content-type: application/json
+
+{
+  "name": "foobar"
+}
+
+
+###  Delete domain given id
+DELETE http://localhost:3000/domains/4
+
+
+###  Route to signin  as existing user
+# POST http://localhost:3000/auth/signin
+# content-type: application/json
+
+# {
+#  "email": "testuser1@test.com",
+#   "password": "12345"
+# }
+
+# ###  Route to signout 
+# POST http://localhost:3000/auth/signout
+
+# ### Get the currently signed in user
+# GET http://localhost:3000/auth/whoami
+
+# ###  Find user with particular ID
+# GET http://localhost:3000/auth/2
+
+# ###  Find all users with a given email 
+# GET http://localhost:3000/auth?email=newemail@foo.com
+
+# ###  Delete user with a given id
+# DELETE http://localhost:3000/auth/1
+
+
+

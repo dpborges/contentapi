@@ -9,6 +9,7 @@ const dbConfig = {
 switch (process.env.NODE_ENV) {
   case 'development':
     Object.assign(dbConfig, {
+      synchronize: true,
       type: 'sqlite',
       database: 'dev.sqlite',
       entities: ['**/*.entity.js'], // in dev mode nest transpiles our ts files to js first; hence we look for entities ending in js

@@ -1,0 +1,62 @@
+PHASE1 - Implement Graphql API for basic content operations(All backend work)
+
+- (DONE) Migrate contentapi data models to Software Ideas Modeler
+- (DONE) Identify/document the first step needed to create domain resource in nestjs
+- (DONE) Implement the request.http 
+- (DONE) Implement CRUD services for the domain resource
+- (DONE) Add the typeorm @CreateDateColumn and @UpdateDateColumn decorators
+- (DONE) rename predicate method to domainExist instead domainNameExists and test
+- (ns) Delete old repository , create new contentapi repo and Check In code in github
+- (ns) check in to github
+- Implement integration tests for all the Happy Scenarios
+      o (ns) create new domain
+      o (ns) create 2nd domain 
+      o (ns) throw exception creating duplicate name in given account
+      o (ns) read up on typeorm migrations
+      o (ns) create migration to build Domain table
+      o determine how I use the Typeorm migrationsRun property to run migration 
+         everytime I was to run a test.
+      o determine how to clean up table before running all my tests
+- DO FOLLOWING:
+  See that I have implemented class below correctly
+     https://github.com/BrunnerLivio/nestjs-integration-test-db-example/blob/master/src/test/testing.module.ts
+  Read my udemy course to see which model if falls into (eg. same module or separate modules)
+  Try to set this up so I can call getEntities from TestUtils
+- Check In code in github
+- Implement integration tests for all the alternate use cases scenarios
+     - Try to create domain that already exists.
+     - Find domain id that does not exist and determine outcome; is default outcome acceptable
+     - Update domain that does not exist and determine outcome; is default outcome acceptable
+     - Remove domain that does not exist and determine outcome; is default outcome acceptable
+- Check In code in github
+
+>>>>>>  repeat above for the contentmd resource <<<<<<<<
+
+- Identify/document all other steps up until creating the putContent, getContent,
+  and getContentById resolvers
+- Create a migration file that creates contentmd table in sqlite
+- Implement getContent, getContentById, putContent
+- Create integration tests for getContent, getContentById and putContent
+- Research how to implement grapqhql pagination for getContent
+- Implement integration test for pagination.
+
+PHASE2 - Implement AuthAPI integration with ContentApi microservice
+
+- Create Conceptual platform architecture depicting how authservice and contentapi
+- Refresh how authentication worked in the Nestjs REST Users/auth module.
+- Refresh how authenticaion worked in the udemy video with stephen grider, 
+  namely how the app server was set up with a proxy to the API services and 
+  how same cookie was used for both app server and API requests. Can we 
+  implement same in Preact?
+- Create Interaction diagram how I will integrate Users/auth api and 
+  contentapi microservice, or any microservice in general.
+- Implement a VERY rudimentary (basic ui) to 
+
+PHASE3 - Implement rest of contentapi requirements (server side)
+- steps tbd
+
+PHASE4 - Implement new features in my blog post (client side)
+- steps tbd
+
+PHASE5 - Mock up platform UI 
+- steps tbd
