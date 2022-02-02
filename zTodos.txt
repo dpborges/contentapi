@@ -6,8 +6,8 @@ PHASE1 - Implement Graphql API for basic content operations(All backend work)
 - (DONE) Implement CRUD services for the domain resource
 - (DONE) Add the typeorm @CreateDateColumn and @UpdateDateColumn decorators
 - (DONE) rename predicate method to domainExist instead domainNameExists and test
-- (ns) Delete old repository , create new contentapi repo and Check In code in github
-- (ns) check in to github
+- (DONE) Delete old repository , create new contentapi repo and Check In code in github
+- (DONE) check in to github
 - Implement integration tests for all the Happy Scenarios
       o (ns) create new domain
       o (ns) create 2nd domain 

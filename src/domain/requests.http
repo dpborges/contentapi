@@ -18,7 +18,7 @@ GET http://localhost:3000/domains?acctid=2
 
 
 ### Update domain name or base_url
-PATCH http://localhost:3000/domains/2
+PATCH http://localhost:3000/domains/6
 content-type: application/json
 
 {
@@ -27,7 +27,7 @@ content-type: application/json
 
 
 ###  Delete domain given id
-DELETE http://localhost:3000/domains/4
+DELETE http://localhost:3000/domains/7
 
 
 ###  Route to signin  as existing user

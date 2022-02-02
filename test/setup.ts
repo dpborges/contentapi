@@ -3,8 +3,12 @@ const fs = require('fs');
 import { join } from 'path';
 import { getConnection } from 'typeorm' ;
 
-// Delete test database before each e2e test
-global.beforeEach(async () => {
+// Sets Up Test environment before either each or all tests.
+// In our case, we delete test database before all e2e tests. How does our e2e test know to delete the 
+// test database? If you look in the test folder, you'll see a file 'jest-e2e.json' file.
+// The property "setupFilesAfterEnv" in this file,  tells jest to run the script referenced
+// there before all e2e tests or before all e2e test, depending which functions you use below. 
+global.beforeAll(async () => {
   const path = join(__dirname, '..', 'test.sqlite');
   // the rm instructor provided in code below did not work in nodejs v12
   // try {
@@ -14,11 +18,11 @@ global.beforeEach(async () => {
   // replace code above with this code which worked with nodejs v12.
   try {
     fs.unlinkSync(path); //file removed
-  } catch(err) {}
+  } catch(err) {}        //if throws err because file is missing already, then we can run test
 });
 
 // Close database connection (close file in case of sqlite), after each e2e test is completed
-global.afterEach(async () => {
+global.afterAll(async () => {
   const conn = getConnection();
   await conn.close();
 })

@@ -14,19 +14,22 @@ import { DomainModule } from './domain/domain.module';
 // following format required because nestjs tsconfig settings
 const cookieSession = require('cookie-session');
 
-// forRoot indicates that connect will be shared with all downstream modules
-// Note that forRoot takes an options object defining our db type.
+// TypeOrmModule.forRoot() indicates that connection will be shared with all downstream modules
+// Note that forRoot takes an options object defining our db type (which is commented out).
+// Where TypeOrmModule.forRoot() has no object, it looks for an ormconfig.js or ormconfig.ts file
+// in project folder in addition to looking at environment variables.
 // Also note that we moved the ValiationPipe from the main.ts file to the
 // providers list in this file, so we can run our E2E tests
 @Module({
   imports: [UsersModule, ReportsModule, 
-    ConfigModule.forRoot({
+    ConfigModule.forRoot({ // Set up ConfigModule
       isGlobal: true,      // allows us to use ConfigModule globally across application
       envFilePath: `.env.${process.env.NODE_ENV}` // reads appropriate .env file based on NODE_ENV
     }),   
-    // -- Below used when using ormconfig.js as the config source
-    TypeOrmModule.forRoot(), DomainModule  // reads config from ormconfig.js or env variables
-    // -- Below used for nestjs specific config only
+    // -- Below used when using ormconfig.js as the config source for both nestjs and typeorm
+    TypeOrmModule.forRoot(),   // reads config from ormconfig.js or env variables
+    DomainModule
+    // -- Below used for using config only with nestjs, and not shared with typeorm
     // TypeOrmModule.forRootAsync({   
     //     inject: [ConfigService],
     //     useFactory: (config: ConfigService) => {
@@ -52,25 +55,23 @@ const cookieSession = require('cookie-session');
       provide: APP_PIPE,   // run every request that comes in through this global pipe
       useValue: new ValidationPipe({
         whitelist: true   // when true strips any additional properties not in your dto from getting to backend
-      })                   // note; it does not throw an error. It on strips out extraneos properties
+      })                  // note; it does not throw an error. It only strips out extraneos properties
     }
   ]
 })
 
 // The configure function will be called automatically whenever our application starts
-// to listen to incoming traffic. The function is used set up whatever middleware you
+// to listen to incoming traffic. The function is used to set up whatever middleware you
 // want to run. Below we set up cookSession middleware for all our routes.
 export class AppModule {
 
-  constructor(
-    private configService: ConfigService 
-  ) {}
+  constructor(private configService: ConfigService) {}
 
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(
       cookieSession({
         keys: [this.configService.get('COOKIE_KEY')], // The string in the keys array is used to encrypt the session object
      }),
-    ).forRoutes('*');
+    ).forRoutes('*');  // this says to make use of the cookieSession middleware on every incoming request, hence why its global middleware
   }
 }
