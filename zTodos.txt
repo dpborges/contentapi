@@ -8,24 +8,25 @@ PHASE1 - Implement Graphql API for basic content operations(All backend work)
 - (DONE) rename predicate method to domainExist instead domainNameExists and test
 - (DONE) Delete old repository , create new contentapi repo and Check In code in github
 - (DONE) check in to github
-- Implement integration tests for all the Happy Scenarios
-      o (ns) create new domain
-      o (ns) create 2nd domain 
-      o (ns) throw exception creating duplicate name in given account
-      o (ns) read up on typeorm migrations
-      o (ns) create migration to build Domain table
+- (DONE) Implement integration tests for all the Happy Scenarios
+      o (done) create new domain
+      o (done) create 2nd domain 
+      o (done) throw exception creating duplicate name in given account
+      o (done) read up on typeorm migrations
+      o (done) create migration to build Domain table
       o determine how I use the Typeorm migrationsRun property to run migration 
          everytime I was to run a test.
-      o determine how to clean up table before running all my tests
-- DO FOLLOWING:
+      o (done) determine how to clean up table before running all my tests
+- DO FOLLOWING: 
+  (SKIP THIS ONE)
   See that I have implemented class below correctly
      https://github.com/BrunnerLivio/nestjs-integration-test-db-example/blob/master/src/test/testing.module.ts
   Read my udemy course to see which model if falls into (eg. same module or separate modules)
   Try to set this up so I can call getEntities from TestUtils
-- Check In code in github
+- (DONE) Check In code in github
 - Implement integration tests for all the alternate use cases scenarios
-     - Try to create domain that already exists.
-     - Find domain id that does not exist and determine outcome; is default outcome acceptable
+     - (DONE) Try to create domain that already exists.
+     - (DONE) Find domain id that does not exist and determine outcome; is default outcome acceptable
      - Update domain that does not exist and determine outcome; is default outcome acceptable
      - Remove domain that does not exist and determine outcome; is default outcome acceptable
 - Check In code in github

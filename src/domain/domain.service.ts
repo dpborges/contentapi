@@ -43,6 +43,9 @@ export class DomainService {
   async update(id: number, updateDomainDto: UpdateDomainDto) {
     /* retrieve instance of domain */
     let domain = await this.domainRepo.findOne(id);
+    if (!domain) {
+      throw new NotFoundException(`Domain does not exist`)
+    }
     /* update  domain */
     domain = Object.assign(domain, updateDomainDto)
     return this.domainRepo.save(domain);

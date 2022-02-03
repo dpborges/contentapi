@@ -26,6 +26,7 @@ describe('Domain Controller (e2e)', () => {
   // ************************************************************* */
 
   let acctId = 1;  
+  let nonExistentId = 999
 
   let firstNewDomain: CreateDomainDto = {   // used for test#1
     name: 'firstDomain',
@@ -47,7 +48,6 @@ describe('Domain Controller (e2e)', () => {
     acct_id: acctId
   };
 
-
   // ********************************************************************
   // POST related Tests for Creating Domain
   // ********************************************************************
@@ -55,7 +55,7 @@ describe('Domain Controller (e2e)', () => {
   /* Save ids when creating new resources to use them in subsequent tests */
   let savedIds = []
 
-  // TEST #1 - Create the first new domain
+  // TEST #1 
   it('Create first new domain for acctId  ', () => {
     let expectedName = firstNewDomain.name;
     let expectedbaseUrl = firstNewDomain.base_url;
@@ -73,7 +73,7 @@ describe('Domain Controller (e2e)', () => {
       })
   });
 
-  // TEST #2 - Create the second new domain
+  // TEST #2 
   it('Create second new domain for acctId ', () => {
     let expectedName = secondNewDomain.name;
     let expectedbaseUrl = secondNewDomain.base_url;
@@ -91,7 +91,7 @@ describe('Domain Controller (e2e)', () => {
       })
   });
 
-  // TEST #3 - Try creating duplicate domain within same acctid
+  // TEST #3 
   it('Throw and catch exception for duplicate domain name ', () => {
 
     /* duplicate domain input, as referenced by variables */
@@ -113,7 +113,7 @@ describe('Domain Controller (e2e)', () => {
       })
   });
 
-   // TEST #4 - Create a domain that will be deleted in a subsequent delete test
+   // TEST #4 
    it('Create a toBeDeleteDomain ', () => {
     let expectedName = toBeDeletedDomain.name;
     let expectedbaseUrl = toBeDeletedDomain.base_url;
@@ -135,7 +135,7 @@ describe('Domain Controller (e2e)', () => {
   // GET related Tests for finding Domains
   // ********************************************************************
 
-  // TEST #5 - Get domain by id (using first value saved in the savedIds array)
+  // TEST #5 
   it('Get domain by id ', () => {
 
     /* expected values */
@@ -151,7 +151,8 @@ describe('Domain Controller (e2e)', () => {
       })
 
   });
-  // TEST #6 - Get all domains for given acct_id (defined top of file)
+
+  // TEST #6 
   it('Get all domains for given acctId ', () => {
 
     let expectedStatus = 200;  
@@ -168,11 +169,29 @@ describe('Domain Controller (e2e)', () => {
       })
   });
 
+  // TEST #7 
+  it('Get domain (by id) that does not exist  ', () => {
+    
+    /* expected values */
+    let expectedStatusCode = 404;  
+    let expectedErrMsg = "Not Found";
+
+    // const { body } = await request(app.getHttpServer())
+    return request(app.getHttpServer())
+      .get(`/domains/${nonExistentId}`)
+      .expect(expectedStatusCode)
+      .expect(({ body }) => {
+        let statusCode = body.StatusCode;
+        let statusError = body.error;
+        expect(statusError).toBe(expectedErrMsg);
+        expect(1).toEqual(1);
+      })
+  });
   // ********************************************************************
   // PATCH related Test to update either base_url or name (aka rename) 
   // ********************************************************************
 
-  // TEST #7 - update both base_url and domain name
+  // TEST #8 
   it('Update both base_url and domain name for given domain id ', () => {
 
     /* expected values */
@@ -194,28 +213,54 @@ describe('Domain Controller (e2e)', () => {
       })
   });
 
+  // TEST #9 
+  it('Try to update properties for domain that does not exist ', () => {
+
+    /* expected values */
+    let expectedStatus = 404;  /* 404 = Not found */
+    let expectedErrMsg = "Not Found";
+
+    /* Request object used for update; tries to update name */
+    let domainChange = {                    
+      name: 'nonExistentName',
+    }
+
+    return request(app.getHttpServer())
+      .patch(`/domains/${nonExistentId}`)
+      .send(domainChange)
+      // .expect(expectedStatus)
+      .then((res) => {
+        let statusCode = res.status;
+        let errorMsg   = res.error;
+        expect(statusCode).toEqual(expectedStatus);
+      })
+
+  });
+
+
   // ********************************************************************
   // DELETE Test to delete single domain by id
   // ********************************************************************
 
-  // TEST #8 - delete domain by domain id
-  it('delete domain by domain id ', () => {
+  // TEST #10 - delete domain by domain id
+  it('Delete domain by domain id ', () => {
 
     /* input */
     let id = 3;
 
     /* expected values */
     let expectedStatus = 200;  /* 409 = Conflict Exception */
+    let expectedName   = toBeDeletedDomain.name;
+    let expectedBaseUrl = toBeDeletedDomain.base_url;
 
     return request(app.getHttpServer())
       .delete(`/domains/${id}`)
       .expect(expectedStatus)
       .then((res) => {
         let deletedDomain = res.body;
-        expect(deletedDomain.name).toEqual(toBeDeletedDomain.name);
-        expect(deletedDomain.base_url).toEqual(toBeDeletedDomain.base_url);
+        expect(deletedDomain.name).toEqual(expectedName);
+        expect(deletedDomain.base_url).toEqual(expectedBaseUrl);
         expect(1).toEqual(1);
-        console.log(JSON.stringify(deletedDomain, null, 2));
       })
   });
 });
