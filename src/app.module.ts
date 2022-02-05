@@ -9,6 +9,7 @@ import { ReportsModule } from './reports/reports.module';
 import { User } from './users/user.entity';  // step 3 for create entity
 import { Report } from './reports/report.entity';  // step 3 for create entity
 import { DomainModule } from './domain/domain.module';
+import { ContentmdModule } from './contentmd/contentmd.module';
 
 
 // following format required because nestjs tsconfig settings
@@ -28,7 +29,7 @@ const cookieSession = require('cookie-session');
     }),   
     // -- Below used when using ormconfig.js as the config source for both nestjs and typeorm
     TypeOrmModule.forRoot(),   // reads config from ormconfig.js or env variables
-    DomainModule
+    DomainModule, ContentmdModule
     // -- Below used for using config only with nestjs, and not shared with typeorm
     // TypeOrmModule.forRootAsync({   
     //     inject: [ConfigService],

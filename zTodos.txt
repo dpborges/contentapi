@@ -1,9 +1,9 @@
 PHASE1 - Implement Graphql API for basic content operations(All backend work)
 
-- (DONE) Migrate contentapi data models to Software Ideas Modeler
-- (DONE) Identify/document the first step needed to create domain resource in nestjs
-- (DONE) Implement the request.http 
-- (DONE) Implement CRUD services for the domain resource
+- (DONE2) Migrate contentapi data models to Software Ideas Modeler
+- (DONE2) Identify/document the first step needed to create domain resource in nestjs
+- (DONE2) Implement the request.http 
+- (DONE - in progress) Implement CRUD services for the domain resource
 - (DONE) Add the typeorm @CreateDateColumn and @UpdateDateColumn decorators
 - (DONE) rename predicate method to domainExist instead domainNameExists and test
 - (DONE) Delete old repository , create new contentapi repo and Check In code in github
@@ -27,7 +27,7 @@ PHASE1 - Implement Graphql API for basic content operations(All backend work)
 - Implement integration tests for all the alternate use cases scenarios
      - (DONE) Try to create domain that already exists.
      - (DONE) Find domain id that does not exist and determine outcome; is default outcome acceptable
-     - Update domain that does not exist and determine outcome; is default outcome acceptable
+     - (DONE) Update domain that does not exist and determine outcome; is default outcome acceptable
      - Remove domain that does not exist and determine outcome; is default outcome acceptable
 - Check In code in github
 
