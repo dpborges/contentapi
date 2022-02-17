@@ -38,6 +38,7 @@ export class DomainService {
       return null;
     }
     return this.domainRepo.findOne(id)
+    
   }
 
   async update(id: number, updateDomainDto: UpdateDomainDto) {

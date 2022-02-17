@@ -1,0 +1,89 @@
+###  Create a new domain
+POST http://localhost:3000/contentmd
+content-type: application/json
+
+{
+  "acct_id": 1,
+  "domain_id": 1,
+  "creator_id": "{{$guid}}",
+  "content_id": "acctname1/domainname1",
+  "title": "content title no3",
+  "slug": "/content-title-no3",
+  "excerpt": "this topic is is a must read",
+  "images": [
+    {"loc": "/blog/img01", "alt": "image 01"},
+    {"loc": "/blog/img02", "alt": "image 02"}
+  ],
+  "content_type": "post",
+  "file_type": "md",
+  "word_cnt":  382
+}
+
+### Get all contentmd for particular domain_id sorted in descending order by create_date
+GET http://localhost:3000/contentmd?domain_id=1
+
+### Get contentmd primary key id 
+GET http://localhost:3000/contentmd/1
+
+### Get all contentmd for particular acct_id sorted by create_date descending order
+GET http://localhost:3000/contentmd?acct_id=1
+
+
+### Update content metadata attributes
+PATCH http://localhost:3000/contentmd/1
+content-type: application/json
+
+{
+  "title": "content title no1",
+  "slug": "/content-title-no1"
+}
+
+###  Delete domain given id
+DELETE http://localhost:3000/contentmd/3
+
+
+### ==================================================================
+### API's Above This Line Have been implemented
+### ==================================================================
+
+
+
+### Get all contentmd in particular domain
+GET http://localhost:3000/domain/1/contentmd
+
+
+### Get all contentmd for my account
+
+
+### Get domain by acctid
+GET http://localhost:3000/domains?acctid=2
+
+
+
+
+###  Route to signin  as existing user
+# POST http://localhost:3000/auth/signin
+# content-type: application/json
+
+# {
+#  "email": "testuser1@test.com",
+#   "password": "12345"
+# }
+
+# ###  Route to signout 
+# POST http://localhost:3000/auth/signout
+
+# ### Get the currently signed in user
+# GET http://localhost:3000/auth/whoami
+
+# ###  Find user with particular ID
+# GET http://localhost:3000/auth/2
+
+# ###  Find all users with a given email 
+# GET http://localhost:3000/auth?email=newemail@foo.com
+
+# ###  Delete user with a given id
+# DELETE http://localhost:3000/auth/1
+
+
+

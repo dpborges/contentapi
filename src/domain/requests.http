@@ -3,9 +3,9 @@ POST http://localhost:3000/domains
 content-type: application/json
 
 {
-  "name": "dummyDomain",
+  "name": "default",
   "base_url": "/blog",
-  "acct_id": 3
+  "acct_id": 1
 }
 
 
@@ -27,7 +27,7 @@ content-type: application/json
 
 
 ###  Delete domain given id
-DELETE http://localhost:3000/domains/7
+DELETE http://localhost:3000/domains/6
 
 
 ###  Route to signin  as existing user

@@ -242,14 +242,14 @@ describe('Domain Controller (e2e)', () => {
   // DELETE Test to delete single domain by id
   // ********************************************************************
 
-  // TEST #10 - delete domain by domain id
-  it('Delete domain by domain id ', () => {
+  // TEST #10 
+  it('Delete single domain by domain id ', () => {
 
-    /* input */
+    /* input; domain id */
     let id = 3;
 
     /* expected values */
-    let expectedStatus = 200;  /* 409 = Conflict Exception */
+    let expectedStatus = 200;  
     let expectedName   = toBeDeletedDomain.name;
     let expectedBaseUrl = toBeDeletedDomain.base_url;
 
@@ -260,7 +260,29 @@ describe('Domain Controller (e2e)', () => {
         let deletedDomain = res.body;
         expect(deletedDomain.name).toEqual(expectedName);
         expect(deletedDomain.base_url).toEqual(expectedBaseUrl);
-        expect(1).toEqual(1);
       })
   });
+
+  // TEST #11 
+  it('Delete domain by domain id that does not exist', () => {
+
+    /* input; domain id */
+    let id = 333;
+
+    /* expected values */
+    let expectedStatus = 404;  
+    let expectedStrPattern = /not found/;
+
+    return request(app.getHttpServer())
+      .delete(`/domains/${id}`)
+      .expect(expectedStatus)
+      .then((res) => {
+        let statusCode = res.status;
+        let errorMsg   = res.text;
+        expect(statusCode).toEqual(expectedStatus);
+        expect(errorMsg).toEqual(expect.stringMatching(expectedStrPattern));
+      })
+  });
+
+
 });

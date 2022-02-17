@@ -1,15 +1,19 @@
+const SnakeNamingStrategy = require('typeorm-naming-strategies').SnakeNamingStrategy;
+
 const dbConfig = {
   synchronize: false,
   migrations: ['migrations/*.js'],
-    cli: {
-      migrationsDir: 'migrations',
-    },
+  cli: {
+    migrationsDir: 'migrations',
+  },
+  namingStrategy: new SnakeNamingStrategy()
 };
 
 switch (process.env.NODE_ENV) {
   case 'development':
     Object.assign(dbConfig, {
       synchronize: true,
+      logging: true,
       type: 'sqlite',
       database: 'dev.sqlite',
       entities: ['**/*.entity.js'], // in dev mode nest transpiles our ts files to js first; hence we look for entities ending in js

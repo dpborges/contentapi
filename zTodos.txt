@@ -1,15 +1,19 @@
 PHASE1 - Implement Graphql API for basic content operations(All backend work)
 
-- (DONE2) Migrate contentapi data models to Software Ideas Modeler
-- (DONE2) Identify/document the first step needed to create domain resource in nestjs
-- (DONE2) Implement the request.http 
-- (DONE - in progress) Implement CRUD services for the domain resource
-- (DONE) Add the typeorm @CreateDateColumn and @UpdateDateColumn decorators
-- (DONE) rename predicate method to domainExist instead domainNameExists and test
-- (DONE) Delete old repository , create new contentapi repo and Check In code in github
-- (DONE) check in to github
-- (DONE) Implement integration tests for all the Happy Scenarios
-      o (done) create new domain
+- (DONE) Use NestJS CLI to create domain resource in nestjs
+- (InPrg) Define the properties for the entity
+- (DONE) Add the typeorm @CreateDateColumn and @UpdateDateColumn decorators to entity
+- (DONE) Implement the request.http 
+- (DONE) Implement CRUD services 
+- (NS) check in to github
+- (NS)    Implement migration for new resource
+- (NS)    Define Integration tests
+- (NS) Implement Test cases
+- (NS) check in to github
+- (NS) Create migration for contentmd
+- (NS) Define integration test cases below
+      o (done) create new resource
+      o (done) write test case 
       o (done) create 2nd domain 
       o (done) throw exception creating duplicate name in given account
       o (done) read up on typeorm migrations
@@ -17,6 +21,7 @@ PHASE1 - Implement Graphql API for basic content operations(All backend work)
       o determine how I use the Typeorm migrationsRun property to run migration 
          everytime I was to run a test.
       o (done) determine how to clean up table before running all my tests
+- (NS) Implement Test cases
 - DO FOLLOWING: 
   (SKIP THIS ONE)
   See that I have implemented class below correctly
@@ -28,7 +33,7 @@ PHASE1 - Implement Graphql API for basic content operations(All backend work)
      - (DONE) Try to create domain that already exists.
      - (DONE) Find domain id that does not exist and determine outcome; is default outcome acceptable
      - (DONE) Update domain that does not exist and determine outcome; is default outcome acceptable
-     - Remove domain that does not exist and determine outcome; is default outcome acceptable
+     - (DONE) Remove domain that does not exist and determine outcome; is default outcome acceptable
 - Check In code in github
 
 >>>>>>  repeat above for the contentmd resource <<<<<<<<
