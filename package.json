@@ -1,5 +1,5 @@
 {
-  "name": "nest-mycarvalue",
+  "name": "contentapi",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -12,6 +12,7 @@
     "start": "cross-env NODE_ENV=development nest start",
     "start:dev": "cross-env NODE_ENV=development nest start --watch",
     "start:debug": "cross-env NODE_ENV=development nest start --debug --watch",
+    "start:test": "cross-env NODE_ENV=test nest start",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "cross-env NODE_ENV=test jest",
@@ -39,7 +40,8 @@
     "rxjs": "^7.2.0",
     "sqlite3": "^5.0.2",
     "typeorm": "^0.2.41",
-    "typeorm-naming-strategies": "^2.0.0"
+    "typeorm-naming-strategies": "^2.0.0",
+    "uuidv4": "^6.2.12"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",

@@ -1,13 +1,26 @@
 PHASE1 - Implement Graphql API for basic content operations(All backend work)
 
 - (DONE) Use NestJS CLI to create domain resource in nestjs
-- (InPrg) Define the properties for the entity
+- (DONE) Define the properties for the entity
 - (DONE) Add the typeorm @CreateDateColumn and @UpdateDateColumn decorators to entity
 - (DONE) Implement the request.http 
+- (DONE) check in to github
+- (DONE) Implement migration for new resource
 - (DONE) Implement CRUD services 
-- (NS) check in to github
-- (NS)    Implement migration for new resource
-- (NS)    Define Integration tests
+      o (DONE) create contentmd record
+        o (done) read lesson 5 / of udemy video line 65
+        o (done) compare what I did with users and reports against what Im doing with domain and contentmd
+        o (done) update create of contentmd to create relation, to make sure I can do this.
+      o check in code  
+      o Fail on creating duplicate record
+      o fail on domain does not exist
+      o Access images array
+- (NS) Implement a way to seed data for a particular test suite.  In my case I want to 
+       seed domain data bfore running the the contentmd test cases.
+       Take a look at the blog post below and see if this is possible
+       https://blog.echobind.com/up-and-running-nextjs-and-typeorm-2c4dff5d7250
+
+- (NS) Define Integration tests
 - (NS) Implement Test cases
 - (NS) check in to github
 - (NS) Create migration for contentmd

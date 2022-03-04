@@ -1,9 +1,12 @@
+import { getRepository } from 'typeorm';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 // import { DomainModule } from '../src/domain/domain.module';
 import { CreateDomainDto } from './../src/domain/dto/create-domain.dto';
+import { domains } from './seeds/domain.seed';
+import { Domain } from '../src/domain/entities/domain.entity';
 
 describe('Domain Controller (e2e)', () => {
   let app: INestApplication;
@@ -25,11 +28,13 @@ describe('Domain Controller (e2e)', () => {
   // Inputs to test cases
   // ************************************************************* */
 
+  "image1,alt|image2,alt" 
+
   let acctId = 1;  
   let nonExistentId = 999
 
   let firstNewDomain: CreateDomainDto = {   // used for test#1
-    name: 'firstDomain',
+    name: 'default',
     base_url: '/first/blogurl',
     acct_id: acctId
   };
@@ -54,6 +59,19 @@ describe('Domain Controller (e2e)', () => {
 
   /* Save ids when creating new resources to use them in subsequent tests */
   let savedIds = []
+
+  // Test 0
+  // it('Seed the database', () => {
+
+  //   getRepository(Domain)
+  //   .createQueryBuilder("domain")
+  //   .insert()
+  //   .into(Domain)
+  //   .values(domains)
+  //   .execute();
+
+  //   return expect(0).toEqual(0);
+  // });
 
   // TEST #1 
   it('Create first new domain for acctId  ', () => {
@@ -114,7 +132,7 @@ describe('Domain Controller (e2e)', () => {
   });
 
    // TEST #4 
-   it('Create a toBeDeleteDomain ', () => {
+   it('Create a toBeDeletedDomain ', () => {
     let expectedName = toBeDeletedDomain.name;
     let expectedbaseUrl = toBeDeletedDomain.base_url;
 
@@ -140,9 +158,11 @@ describe('Domain Controller (e2e)', () => {
 
     /* expected values */
     let expectedStatus = 200;  
-    let expectedName  = 'firstDomain';
+    let expectedName  = 'default';
 
     // const { body } = await request(app.getHttpServer())
+    console.log("SAVED IDS");
+    console.log(savedIds);
     return request(app.getHttpServer())
       .get(`/domains/${savedIds[0]}`)
       .expect(200)
@@ -157,7 +177,7 @@ describe('Domain Controller (e2e)', () => {
 
     let expectedStatus = 200;  
     let expectedNumDomains  = 3;
-    let expectedName = "firstDomain"
+    let expectedName = "default"
 
     // const { body } = await request(app.getHttpServer())
     return request(app.getHttpServer())
@@ -199,11 +219,11 @@ describe('Domain Controller (e2e)', () => {
 
     /* Request object used for update  */
     let domainChange = {                    
-      name: 'firstDomainupdated',
-      base_url: '/blog/updated'
+      name: 'secondDomainUpdated',
+      base_url: '/second/blogurl-updated'
     }
     return request(app.getHttpServer())
-      .patch(`/domains/${savedIds[0]}`)
+      .patch(`/domains/${savedIds[1]}`)
       .send(domainChange)
       .expect(expectedStatus)
       .then((res) => {

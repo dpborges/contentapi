@@ -19,11 +19,11 @@ export class User {
     @Column({ default: true })
     admin: boolean;
 
-    // To tell TypeOrm that are user is associated with a Report(s),
+    // To tell TypeOrm that our user is associated with Report(s),
     // the 1st function returns our Report Entity class. We wrap the Entity return type in
     // a function to avoid circular reference between User and Report.
-    // The second function returns a user for a give report.
-    @OneToMany(() => Report,  (report) => report.user) // read backwards; one user has 
+    // The second function returns a user for a given report, again from the target relation, in this case report.
+    @OneToMany(() => Report, (report) => report.user) // The second qualifier, user, is the property on the reports entity.
     reports: Report[];
 
     @AfterInsert()

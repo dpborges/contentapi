@@ -4,21 +4,19 @@ content-type: application/json
 
 {
   "acct_id": 1,
-  "domain_id": 1,
+  "domain_name": "default",
   "creator_id": "{{$guid}}",
   "content_id": "acctname1/domainname1",
-  "title": "content title no3",
-  "slug": "/content-title-no3",
+  "title": "content title no4",
+  "slug": "/content-title-no4",
   "excerpt": "this topic is is a must read",
-  "images": [
-    {"loc": "/blog/img01", "alt": "image 01"},
-    {"loc": "/blog/img02", "alt": "image 02"}
-  ],
+  "images": "string of images",
+  "images": "/blog/image01,alt01|/blog/image02,alt02",
   "content_type": "post",
   "file_type": "md",
-  "word_cnt":  382
+  "word_cnt":  382 
 }
-
+  
 ### Get all contentmd for particular domain_id sorted in descending order by create_date
 GET http://localhost:3000/contentmd?domain_id=1
 

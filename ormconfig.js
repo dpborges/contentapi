@@ -1,4 +1,5 @@
 const SnakeNamingStrategy = require('typeorm-naming-strategies').SnakeNamingStrategy;
+const path = require('path');
 
 const dbConfig = {
   synchronize: false,
@@ -23,8 +24,10 @@ switch (process.env.NODE_ENV) {
     Object.assign(dbConfig, {
       type: 'sqlite',
       database: 'test.sqlite',
-      entities: ['**/*.entity.ts'],  // in test mode ts-jest looks for entities as ts files
-      migrationsRun: true,     // runs a migration for each of our individual tests
+      // entities: ['**/*.entity.ts'],  // in test mode ts-jest looks for entities as ts files
+      entities: [path.join(__dirname, '**', '*.entity.{ts,js}')],
+      migrationsRun: true,    // runs a migration before each of our  tests
+      dropSchema: false       // if set to true, it will delete your data after run tests
     });
   break;
   case 'production':

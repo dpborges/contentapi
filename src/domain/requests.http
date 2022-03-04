@@ -14,7 +14,7 @@ GET http://localhost:3000/domains/12
 
 
 ### Get domain by acctid
-GET http://localhost:3000/domains?acctid=2
+GET http://localhost:3000/domains?acctid=1
 
 
 ### Update domain name or base_url

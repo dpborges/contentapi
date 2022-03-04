@@ -41,6 +41,6 @@ export class Report {
     // the 1st function returns our User Entity class. User class
     // is wrapped with a function to avoid circular reference problem
     // The 2nd function returns the reports for a given user.
-    @ManyToOne(() => User, (user) => user.reports)
+    @ManyToOne(() => User, (user) => user.reports)  // The second qualifier, reports, is the property on the user entity.
     user: User;
 }

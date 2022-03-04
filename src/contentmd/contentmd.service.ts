@@ -10,7 +10,8 @@ import { DomainService } from '../domain/domain.service';
 @Injectable()
 export class ContentmdService {
 
-  constructor(private domainService: DomainService,
+  constructor(
+    private domainService: DomainService,
     @InjectRepository(Contentmd) private contentmdRepo: Repository<Contentmd>,
     @InjectRepository(Domain) private domainRepo: Repository<Domain>,
   ) {}
@@ -21,14 +22,39 @@ export class ContentmdService {
    * @param contentmdDto 
    * @returns Promise<Contentmd>
    */
+  // async create(contentmdDto: CreateContentmdDto) {
+  //   /* ensure domain id for the given acct_id exists  */
+  //   const targetDomain = await this.domainService.findOne(contentmdDto.domain_id)
+  //   if (!targetDomain) {
+  //     throw new NotFoundException(`domain '${contentmdDto.domain_id}' does not exists `)
+  //   } 
+  //   /* ensure slug does not already exist within the given domain_id */
+  //   const slugExist = await this.slugExist(contentmdDto.domain_id, contentmdDto.slug);
+  //   if (slugExist) {
+  //     throw new ConflictException(`Slug '${contentmdDto.slug}' already exists `)
+  //   } 
+        
+  //   /* create instance of Content Metadata */
+  //   const newContentMd = this.contentmdRepo.create(contentmdDto);
+  //   /* tack on the domain entity to the contentmd instance */
+  //   // newContentMd.domain = targetDomain;
+  //   /* save to repository */
+  //   return this.contentmdRepo.save(newContentMd);
+  // }
+
   async create(contentmdDto: CreateContentmdDto) {
+    let { domain_name, acct_id } = contentmdDto;
+    /* ensure domain name for the given acct_id exists  */
+    let domainList = await this.domainService.findAllByAcctId(acct_id);
+    let foundDomain = domainList.find(domain => domain.name === domain_name)
+
     /* ensure domain id for the given acct_id exists  */
-    const targetDomain = await this.domainService.findOne(contentmdDto.domain_id)
-    if (!targetDomain) {
-      throw new NotFoundException(`domain '${contentmdDto.domain_id}' does not exists `)
+    // const targetDomain = await this.domainService.findOne(contentmdDto.domain_id)
+    if (!foundDomain) {
+      throw new NotFoundException(`domain '${contentmdDto.domain_name}' does not exists `)
     } 
     /* ensure slug does not already exist within the given domain_id */
-    const slugExist = await this.slugExist(contentmdDto.domain_id, contentmdDto.slug);
+    const slugExist = await this.slugExist(foundDomain.id, contentmdDto.slug);
     if (slugExist) {
       throw new ConflictException(`Slug '${contentmdDto.slug}' already exists `)
     } 
@@ -36,10 +62,13 @@ export class ContentmdService {
     /* create instance of Content Metadata */
     const newContentMd = this.contentmdRepo.create(contentmdDto);
     /* tack on the domain entity to the contentmd instance */
-    newContentMd.domain = targetDomain;
+    newContentMd.domain = foundDomain;
     /* save to repository */
     return this.contentmdRepo.save(newContentMd);
   }
+
+
+
 
   findAll() {
     return `This action returns all contentmd`;

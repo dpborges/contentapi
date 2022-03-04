@@ -35,10 +35,11 @@ export class Contentmd {
   @Column("varchar", { default: '' })
   base_url_override: string;
 
-  @Column()
+  @Column("varchar", { default: '' })
   excerpt: string;
 
-  @Column("simple-array")
+  // @Column("simple-array")
+  @Column()
   images: string;
 
   @Column()

@@ -11,7 +11,6 @@ import { Report } from './reports/report.entity';  // step 3 for create entity
 import { DomainModule } from './domain/domain.module';
 import { ContentmdModule } from './contentmd/contentmd.module';
 
-
 // following format required because nestjs tsconfig settings
 const cookieSession = require('cookie-session');
 

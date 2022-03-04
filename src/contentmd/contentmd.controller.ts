@@ -5,6 +5,7 @@ import {
 import { ContentmdService } from './contentmd.service';
 import { CreateContentmdDto } from './dto/create-contentmd.dto';
 import { UpdateContentmdDto } from './dto/update-contentmd.dto';
+import { Domain } from '../domain/entities/domain.entity'
 
 @Controller('contentmd')
 export class ContentmdController {

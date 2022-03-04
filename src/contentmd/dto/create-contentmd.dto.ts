@@ -9,8 +9,8 @@ export class CreateContentmdDto {
   @IsString()
   creator_id: string;
 
-  @IsNumber()
-  domain_id: number;
+  @IsString()
+  domain_name: string;
 
   @IsString()
   content_id: string;
@@ -21,14 +21,17 @@ export class CreateContentmdDto {
   @IsString()
   slug: string;
 
-  @IsOptional()
+  @IsOptional() 
   @IsString()
-  base_url_override: string;
+  base_url_override: string = '';
 
   @IsString()
+  @IsOptional() 
   excerpt: string;
 
-  @IsArray()
+  // @IsArray()
+  @IsString()
+  @IsOptional()
   images: string;
 
   @IsString()
@@ -40,8 +43,8 @@ export class CreateContentmdDto {
   @IsNumber()
   word_cnt: number;
 
-  @IsOptional()
+  @IsOptional() 
   @IsString()
-  lang: string;
+  lang: string = 'en';
  
 }
