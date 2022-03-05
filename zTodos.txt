@@ -11,12 +11,17 @@ PHASE1 - Implement Graphql API for basic content operations(All backend work)
         o (done) read lesson 5 / of udemy video line 65
         o (done) compare what I did with users and reports against what Im doing with domain and contentmd
         o (done) update create of contentmd to create relation, to make sure I can do this.
-      o check in code  
-      o Fail on creating duplicate record
-      o fail on domain does not exist
-      o Access images array
+      o (done) check in code  
+      o (done) Fail on creating where domain does not exist
+      o (done) Fail on creating with duplicate slug
+      o (done) Fail on creating duplicate record
+      o (done) create duplicate record in another domain
+      o (done) Do a get of  1 record and Access images array
+      o Create new record and update the title and the blog_url_override
+      o Do a get all of content for a particular domain.
+
 - (NS) Implement a way to seed data for a particular test suite.  In my case I want to 
-       seed domain data bfore running the the contentmd test cases.
+       seed domain data bfore running the contentmd test cases.
        Take a look at the blog post below and see if this is possible
        https://blog.echobind.com/up-and-running-nextjs-and-typeorm-2c4dff5d7250
 

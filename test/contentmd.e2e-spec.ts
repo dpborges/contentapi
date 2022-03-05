@@ -31,8 +31,8 @@ describe('Contentmd Test Module (e2e)', () => {
   let acctId = 1;  
   // let nonExistentId = 999
   let imagesArrayString = JSON.stringify([
-    {"loc": "/blog/img01", "alt": "image 01"},
-    {"loc": "/blog/img02", "alt": "image 02"}
+    {"src": "/blog/imag01", "alt": "image 01"},
+    {"src": "/blog/imag02", "alt": "image 02"}
   ])
 
   // let defaultDomain = {   // used for test#1
@@ -47,11 +47,10 @@ describe('Contentmd Test Module (e2e)', () => {
     "domain_name": "default",
     "creator_id": uuidv4(),
     "content_id": "acctname1/domainname1",
-    "title": "content title no3",
-    "slug": "/content-title-no3",
+    "title": "content title no1",
     "base_url_override": "/blog/override",
+    "slug": "/content-title-no1",
     "excerpt": "this topic is is a must read",
-    // "images": "/blog/image01,alt01|/blog/image02,alt02",
     "images": imagesArrayString,
     "content_type": "post",
     "file_type": "md",
@@ -74,42 +73,118 @@ describe('Contentmd Test Module (e2e)', () => {
     
   // });
 
-// TEST #0 
-it('Seed the database with the default domain ', () => {
+  // TEST #0 
+  it('Seed the database with the default domain ', () => {
 
-    let testValue = "not a test; used to seed DB";
+      let testValue = "not a test; used to seed DB";
 
-    getRepository(Domain)
-    .createQueryBuilder("domain")
-    .insert()
-    .into(Domain)
-    .values(domains)
-    .execute();
+      getRepository(Domain)
+      .createQueryBuilder("domain")
+      .insert()
+      .into(Domain)
+      .values(domains)
+      .execute();
 
-    return expect(testValue).toEqual(testValue);
-});
-
+      return expect(testValue).toEqual(testValue);
+  });
 
   // TEST #1 
-  it('Create first content metadata record  ', () => {
+  it('1- Create first content metadata record  ', () => {
     let expectedTitle = contentmdInstance1.title;
     let expectedSlug  = contentmdInstance1.slug;
-    
-    console.log("***************META DATA INSTANCE ******************");
-    console.log(JSON.stringify(contentmdInstance1,null,2));
 
     return request(app.getHttpServer())
       .post('/contentmd')
       .send(contentmdInstance1)
       .expect(201)
       .then((res) => {
-        console.log("RESPONSE BODY")
-        console.log(JSON.stringify(res.body,null,2))
+        // console.log("RESPONSE  ")
+        // console.log(JSON.stringify(res.body,null,2))
         const { id, title, slug  } = res.body;
         // savedIds.push(id);
         expect(id).toBeDefined();
         expect(title).toEqual(expectedTitle);
         expect(slug).toEqual(expectedSlug);
+      })
+  });
+
+  // TEST #2 
+  it('2- Fails to create content metadata when domain does not exist  ', () => {
+    /* contruct modified instance with domain that does not exist */
+    let contentmdInstance2 = Object.assign(contentmdInstance1, { "domain_name": "doesNotExist" });
+    let expectedTitle = contentmdInstance2.title;
+    let expectedSlug  = contentmdInstance2.slug;
+    let expectedStrPattern = "does not exists";
+    
+    return request(app.getHttpServer())
+      .post('/contentmd')
+      .send(contentmdInstance2)
+      .expect(404)
+      .then((res) => {
+        // console.log("RESPONSE INSTANCE 2")
+        // console.log(JSON.stringify(res.body,null,2))
+        expect(res.text).toEqual(expect.stringMatching(expectedStrPattern))
+      })
+  });
+
+  // TEST #3 
+  it('3- Fails to create a duplicate content metadata record ', () => {
+    /* contruct modified instance with slug that already exists */
+    let contentmdInstance3 = Object.assign(contentmdInstance1, { 
+      "slug": "/content-title-no1",
+      "domain_name": "default"
+    });
+    let expectedTitle = contentmdInstance3.title;
+    let expectedSlug  = contentmdInstance3.slug;
+    let expectedStrPattern = "already exists";
+    
+    return request(app.getHttpServer())
+      .post('/contentmd')
+      .send(contentmdInstance3)
+      .expect(409)
+      .then((res) => {
+        expect(res.text).toEqual(expect.stringMatching(expectedStrPattern))
+      })
+  });
+
+  // TEST #4 
+  it('4- Creates same content as in test #3 in domain2  ', () => {
+    /* contruct modified instance with slug that already exists */
+    let contentmdInstance3 = Object.assign(contentmdInstance1, { 
+      "slug": "/content-title-no1",
+      "domain_name": "domain2"
+    });
+    let expectedDomain = contentmdInstance3.domain_name;
+    
+    return request(app.getHttpServer())
+      .post('/contentmd')
+      .send(contentmdInstance3)
+      .expect(201)
+      .then((res) => {
+        const { domain } = res.body;
+        // console.log("RESPONSE INSTANCE 3")
+        // console.log(JSON.stringify(res.body,null,2))
+        expect(domain.name).toEqual(expectedDomain);
+      })
+  });
+
+  // TEST #5 
+  it('5- Get content metadata by id and access images array', () => {
+    /* expected values */
+    let expectedStatus = 200;  
+    let expectedSlug  = '/content-title-no1';
+    let expectedImage1Src = '/blog/imag01';
+
+    return request(app.getHttpServer())
+      .get(`/contentmd/1`)
+      .expect(expectedStatus)
+      .expect(({ body }) => {
+        let imagesArray = JSON.parse(body.images);
+        let image1Src = imagesArray[0].src;
+        console.log("Name of image 1 src url");
+        console.log(image1Src);
+        expect(body.slug).toEqual(expectedSlug);
+        expect(image1Src).toEqual(expectedImage1Src);
       })
   });
 
