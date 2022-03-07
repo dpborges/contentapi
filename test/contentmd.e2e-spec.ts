@@ -35,12 +35,6 @@ describe('Contentmd Test Module (e2e)', () => {
     {"src": "/blog/imag02", "alt": "image 02"}
   ])
 
-  // let defaultDomain = {   // used for test#1
-  //   name: 'default_joined',
-  //   base_url: '/default_joined/blogurl',
-  //   acct_id: 1
-  // };
-
   // let contentmdInstance1: Partial<CreateContentmdDto> = {
   let contentmdInstance1 = {
     "acct_id": 2,
@@ -63,18 +57,10 @@ describe('Contentmd Test Module (e2e)', () => {
   // ********************************************************************
 
   /* Save ids when creating new resources to use them in subsequent tests */
-  let savedIds = []
-
-  // it('dummy test using queryRunner  ', () => {
-    
-  //   let queryRunner: QueryRunner;
-  //   queryRunner.query('select now() as current_day_time');
-  //   expect(1).toEqual(1);
-    
-  // });
-
+  let savedIds = [];  // THIS WAS NOT USED FOR THIS TEST SUITE
+  
   // TEST #0 
-  it('Seed the database with the default domain ', () => {
+  it('00- Seed the database with test domains ', () => {
 
       let testValue = "not a test; used to seed DB";
 
@@ -89,7 +75,7 @@ describe('Contentmd Test Module (e2e)', () => {
   });
 
   // TEST #1 
-  it('1- Create first content metadata record  ', () => {
+  it('01- Create first content metadata record  ', () => {
     let expectedTitle = contentmdInstance1.title;
     let expectedSlug  = contentmdInstance1.slug;
 
@@ -98,18 +84,18 @@ describe('Contentmd Test Module (e2e)', () => {
       .send(contentmdInstance1)
       .expect(201)
       .then((res) => {
-        // console.log("RESPONSE  ")
-        // console.log(JSON.stringify(res.body,null,2))
+        console.log("RESPONSE BODY  ")
+        console.log(JSON.stringify(res.body,null,2))
         const { id, title, slug  } = res.body;
         // savedIds.push(id);
-        expect(id).toBeDefined();
+        // expect(id).toBeDefined();
         expect(title).toEqual(expectedTitle);
         expect(slug).toEqual(expectedSlug);
       })
   });
 
   // TEST #2 
-  it('2- Fails to create content metadata when domain does not exist  ', () => {
+  it('02- Fails to create content metadata when domain does not exist  ', () => {
     /* contruct modified instance with domain that does not exist */
     let contentmdInstance2 = Object.assign(contentmdInstance1, { "domain_name": "doesNotExist" });
     let expectedTitle = contentmdInstance2.title;
@@ -128,7 +114,7 @@ describe('Contentmd Test Module (e2e)', () => {
   });
 
   // TEST #3 
-  it('3- Fails to create a duplicate content metadata record ', () => {
+  it('03- Fails to create a duplicate content metadata record ', () => {
     /* contruct modified instance with slug that already exists */
     let contentmdInstance3 = Object.assign(contentmdInstance1, { 
       "slug": "/content-title-no1",
@@ -148,8 +134,8 @@ describe('Contentmd Test Module (e2e)', () => {
   });
 
   // TEST #4 
-  it('4- Creates same content as in test #3 in domain2  ', () => {
-    /* contruct modified instance with slug that already exists */
+  it('04- Creates same content as in test #3 in domain2  ', () => {
+    /* contruct modified instance to save in domain2 vs default domain */
     let contentmdInstance3 = Object.assign(contentmdInstance1, { 
       "slug": "/content-title-no1",
       "domain_name": "domain2"
@@ -169,7 +155,7 @@ describe('Contentmd Test Module (e2e)', () => {
   });
 
   // TEST #5 
-  it('5- Get content metadata by id and access images array', () => {
+  it('05- Get content metadata by id and access images array', () => {
     /* expected values */
     let expectedStatus = 200;  
     let expectedSlug  = '/content-title-no1';
@@ -188,217 +174,98 @@ describe('Contentmd Test Module (e2e)', () => {
       })
   });
 
-  // TEST #2 
-  // it('Create second new domain for acctId ', () => {
-  //   let expectedName = secondNewDomain.name;
-  //   let expectedbaseUrl = secondNewDomain.base_url;
-
-  //   return request(app.getHttpServer())
-  //     .post('/domains')
-  //     .send(secondNewDomain)
-  //     .expect(201)
-  //     .then((res) => {
-  //       const { id, name, base_url  } = res.body;
-  //       savedIds.push(id);
-  //       expect(id).toBeDefined();
-  //       expect(name).toEqual(expectedName);
-  //       expect(base_url).toEqual(expectedbaseUrl);
-  //     })
-  // });
-
-  // TEST #3 
-  // it('Throw and catch exception for duplicate domain name ', () => {
-
-  //   /* duplicate domain input, as referenced by variables */
-  //   let dupDomain = duplicateDomain;
-
-  //   /* expected values */
-  //   let expectedStrPattern = /already exists/;
-  //   let expectedStatus = 409;  /* 409 = Conflict Exception */
-
-  //   return request(app.getHttpServer())
-  //     .post('/domains')
-  //     .send(dupDomain)
-  //     .expect(expectedStatus)
-  //     .then((res) => {
-  //       const message = res.text;
-  //       const status  = res.status;
-  //       expect(message).toEqual(expect.stringMatching(expectedStrPattern))
-  //       expect(status).toBe(expectedStatus);
-  //     })
-  // });
-
-   // TEST #4 
-  //  it('Create a toBeDeleteDomain ', () => {
-  //   let expectedName = toBeDeletedDomain.name;
-  //   let expectedbaseUrl = toBeDeletedDomain.base_url;
-
-  //   return request(app.getHttpServer())
-  //     .post('/domains')
-  //     .send(toBeDeletedDomain)
-  //     .expect(201)
-  //     .then((res) => {
-  //       const { id, name, base_url  } = res.body;
-  //       savedIds.push(id);
-  //       expect(id).toBeDefined();
-  //       expect(name).toEqual(expectedName);
-  //       expect(base_url).toEqual(expectedbaseUrl);
-  //     })
-  // });
-
-  // ********************************************************************
-  // GET related Tests for finding Domains
-  // ********************************************************************
-
-  // TEST #5 
-  // it('Get contentmd record ', () => {
-
-  //   /* expected values */
-  //   let expectedStatus = 200;  
-  //   let expectedName  = 'firstDomain';
-
-  //   // const { body } = await request(app.getHttpServer())
-  //   return request(app.getHttpServer())
-  //     // .get(`/contentmd/${savedIds[0]}`)
-  //     .get(`/contentmd/1`)
-  //     .expect(404)
-  //     // .expect(({ body }) => {
-  //     //   expect(body.name).toEqual(expectedName);
-  //     // })
-
-  // });
-
   // TEST #6 
-  // it('Get all domains for given acctId ', () => {
+  it('06- Create second content metadata record in default domain  ', () => {
+     /* contruct modified instance with slug that already exists */
+     let contentmdInstance4 = Object.assign(contentmdInstance1, { 
+      "slug": "/content-title-no2",
+      "domain_name": "default",
+      "blog_url_override": "/blog/override2"
+    });
+    let expectedTitle = contentmdInstance4.title;
+    let expectedSlug  = contentmdInstance4.slug;
 
-  //   let expectedStatus = 200;  
-  //   let expectedNumDomains  = 3;
-  //   let expectedName = "firstDomain"
-
-  //   // const { body } = await request(app.getHttpServer())
-  //   return request(app.getHttpServer())
-  //     .get(`/domains?acctid=${acctId}`)
-  //     .expect(200)
-  //     .expect(({ body }) => {
-  //       expect(body.length).toBe(expectedNumDomains);
-  //       expect(body[0].name).toEqual(expectedName);
-  //     })
-  // });
+    return request(app.getHttpServer())
+      .post('/contentmd')
+      .send(contentmdInstance4)
+      .expect(201)
+      .then((res) => {
+        // console.log("RESPONSE  ")
+        // console.log(JSON.stringify(res.body,null,2))
+        const { id, title, slug  } = res.body;
+        // savedIds.push(id);
+        expect(id).toBeDefined();
+        expect(title).toEqual(expectedTitle);
+        expect(slug).toEqual(expectedSlug);
+      })
+  });
 
   // TEST #7 
-  // it('Get domain (by id) that does not exist  ', () => {
-    
-  //   /* expected values */
-  //   let expectedStatusCode = 404;  
-  //   let expectedErrMsg = "Not Found";
+  it('07- Get all content metadata for given domain_id', () => {
+  /* expected values */
+  let expectedStatus = 200;  
+  let expectedRecords = 2;
 
-  //   // const { body } = await request(app.getHttpServer())
-  //   return request(app.getHttpServer())
-  //     .get(`/domains/${nonExistentId}`)
-  //     .expect(expectedStatusCode)
-  //     .expect(({ body }) => {
-  //       let statusCode = body.StatusCode;
-  //       let statusError = body.error;
-  //       expect(statusError).toBe(expectedErrMsg);
-  //       expect(1).toEqual(1);
-  //     })
-  // });
-  // ********************************************************************
-  // PATCH related Test to update either base_url or name (aka rename) 
-  // ********************************************************************
+  return request(app.getHttpServer())
+    .get(`/contentmd?acct_id=2&domain_id=1`)
+    .expect(expectedStatus)
+    .expect(({ body }) => {
+      expect(body.length).toBe(expectedRecords);
+    })
+  });
 
   // TEST #8 
-  // it('Update both base_url and domain name for given domain id ', () => {
+  it('08- Update content_id and title on single contentmd record ', () => {
+  /* expected values */
+  let expectedStatus = 200;  /* 409 = Conflict Exception */
 
-  //   /* expected values */
-  //   let expectedStatus = 200;  /* 409 = Conflict Exception */
-
-  //   /* Request object used for update  */
-  //   let domainChange = {                    
-  //     name: 'firstDomainupdated',
-  //     base_url: '/blog/updated'
-  //   }
-  //   return request(app.getHttpServer())
-  //     .patch(`/domains/${savedIds[0]}`)
-  //     .send(domainChange)
-  //     .expect(expectedStatus)
-  //     .then((res) => {
-  //       let updatedDomain = res.body;
-  //       expect(updatedDomain.name).toEqual(domainChange.name);
-  //       expect(updatedDomain.base_url).toEqual(domainChange.base_url);
-  //     })
-  // });
+  /* Request object used for update  */
+  let contentmdChange = {                    
+    "content_id": "acctname1/domainname11",
+    "title": "content title no11"
+  }
+  return request(app.getHttpServer())
+    .patch(`/contentmd/1`)
+    .send(contentmdChange)
+    .expect(expectedStatus)
+    .then((res) => {
+      let updatedContentmd = res.body;
+      expect(updatedContentmd.content_id).toEqual(contentmdChange.content_id);
+      expect(updatedContentmd.title).toEqual(contentmdChange.title);
+    })
+  });
 
   // TEST #9 
-  // it('Try to update properties for domain that does not exist ', () => {
+  it('09- Delete single contentmd record ', () => {
 
-  //   /* expected values */
-  //   let expectedStatus = 404;  /* 404 = Not found */
-  //   let expectedErrMsg = "Not Found";
+    /* input; contentmd.id */
+    let id = 2;
 
-  //   /* Request object used for update; tries to update name */
-  //   let domainChange = {                    
-  //     name: 'nonExistentName',
-  //   }
+    /* expected values */
+    let expectedStatus = 200;  
+    let expectedTitle = "content title no1";
 
-  //   return request(app.getHttpServer())
-  //     .patch(`/domains/${nonExistentId}`)
-  //     .send(domainChange)
-  //     // .expect(expectedStatus)
-  //     .then((res) => {
-  //       let statusCode = res.status;
-  //       let errorMsg   = res.error;
-  //       expect(statusCode).toEqual(expectedStatus);
-  //     })
-
-  // });
-
-
-  // ********************************************************************
-  // DELETE Test to delete single domain by id
-  // ********************************************************************
+    return request(app.getHttpServer())
+      .delete(`/contentmd/2`)
+      .expect(expectedStatus)
+      .then((res) => {
+        let deletedResource = res.body;
+        expect(deletedResource.title).toEqual(expectedTitle);
+      })
+  });
 
   // TEST #10 
-  // it('Delete single domain by domain id ', () => {
-
-  //   /* input; domain id */
-  //   let id = 3;
-
-  //   /* expected values */
-  //   let expectedStatus = 200;  
-  //   let expectedName   = toBeDeletedDomain.name;
-  //   let expectedBaseUrl = toBeDeletedDomain.base_url;
-
-  //   return request(app.getHttpServer())
-  //     .delete(`/domains/${id}`)
-  //     .expect(expectedStatus)
-  //     .then((res) => {
-  //       let deletedDomain = res.body;
-  //       expect(deletedDomain.name).toEqual(expectedName);
-  //       expect(deletedDomain.base_url).toEqual(expectedBaseUrl);
-  //     })
-  // });
-
-  // TEST #11 
-  // it('Delete domain by domain id that does not exist', () => {
-
-  //   /* input; domain id */
-  //   let id = 333;
-
-  //   /* expected values */
-  //   let expectedStatus = 404;  
-  //   let expectedStrPattern = /not found/;
-
-  //   return request(app.getHttpServer())
-  //     .delete(`/domains/${id}`)
-  //     .expect(expectedStatus)
-  //     .then((res) => {
-  //       let statusCode = res.status;
-  //       let errorMsg   = res.text;
-  //       expect(statusCode).toEqual(expectedStatus);
-  //       expect(errorMsg).toEqual(expect.stringMatching(expectedStrPattern));
-  //     })
-  // });
-
-
+  it('10- Get all content metadata from domain with no content', () => {
+    /* expected values */
+    let expectedStatus = 200;  
+    let expectedRecords = 0;
+    let emptyDomainId = 3;
+  
+    return request(app.getHttpServer())
+      .get(`/contentmd?acct_id=2&domain_id=${emptyDomainId}`)
+      .expect(expectedStatus)
+      .expect(({ body }) => {
+        expect(body.length).toBe(expectedRecords);
+      })
+    });
 });

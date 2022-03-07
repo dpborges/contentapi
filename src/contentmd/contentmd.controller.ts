@@ -22,8 +22,12 @@ export class ContentmdController {
   // }
   
   @Get()
-  findAllByDomainId(@Query('domain_id') domain_id: string) {  
-    return this.contentmdService.findAllByDomainId(parseInt(domain_id));
+  findAllByAcctAndDomainId(
+       @Query('acct_id') acct_id: string,
+       @Query('domain_id') domain_id: string,
+    ) {  
+    // return { acct_id: parseInt(acct_id), domain_id: parseInt(domain_id) }
+    return this.contentmdService.findAllByAcctAndDomainId(parseInt(acct_id), parseInt(domain_id));
   }
 
   @Get(':id')

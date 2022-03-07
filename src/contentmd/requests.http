@@ -7,8 +7,9 @@ content-type: application/json
   "domain_name": "default",
   "creator_id": "{{$guid}}",
   "content_id": "acctname1/domainname1",
-  "title": "content title no45",
-  "slug": "/content-title-no45",
+  "title": "content title no1",
+  "slug": "/content-title-no1",
+  "base_url_override": "/blog/override",
   "excerpt": "this topic is is a must read",
   "images": "string of images",
   "images": "/blog/image01,alt01|/blog/image02,alt02",
@@ -17,15 +18,14 @@ content-type: application/json
   "word_cnt":  382 
 }
   
-### Get all contentmd for particular domain_id sorted in descending order by create_date
-GET http://localhost:3000/contentmd?domain_id=1
+### Get all contentmd for particular domain_id, in an acct, sorted in descending order by create_date
+GET http://localhost:3000/contentmd?acct_id=1&domain_id=1
 
-### Get contentmd primary key id 
+### Get contentmd by primary key id 
 GET http://localhost:3000/contentmd/1
 
-### Get all contentmd for particular acct_id sorted by create_date descending order
+### Get all contentmd for particular acct_id sorted in descending order by create_date 
 GET http://localhost:3000/contentmd?acct_id=1
-
 
 ### Update content metadata attributes
 PATCH http://localhost:3000/contentmd/1

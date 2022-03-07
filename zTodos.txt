@@ -17,9 +17,12 @@ PHASE1 - Implement Graphql API for basic content operations(All backend work)
       o (done) Fail on creating duplicate record
       o (done) create duplicate record in another domain
       o (done) Do a get of  1 record and Access images array
-      o Create new record and update the title and the blog_url_override
-      o Do a get all of content for a particular domain.
+      o (done) Do a get all content for a particular domain.
+      o Update the title and the blog_url_override of an existing record
+      o create a domain with no content and see result when trying to get content from empty domain
 
+- (NS) Change blog_url and blog_url_override to base_url or url_prefix; 
+       ..make both of them the same on domain and contentmd record
 - (NS) Implement a way to seed data for a particular test suite.  In my case I want to 
        seed domain data bfore running the contentmd test cases.
        Take a look at the blog post below and see if this is possible
