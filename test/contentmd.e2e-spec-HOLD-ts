@@ -42,7 +42,7 @@ describe('Contentmd Test Module (e2e)', () => {
     "creator_id": uuidv4(),
     "content_id": "acctname1/domainname1",
     "title": "content title no1",
-    "base_url_override": "/blog/override",
+    "base_url": "/blog/override",
     "slug": "/content-title-no1",
     "excerpt": "this topic is is a must read",
     "images": imagesArrayString,
@@ -180,7 +180,7 @@ describe('Contentmd Test Module (e2e)', () => {
      let contentmdInstance4 = Object.assign(contentmdInstance1, { 
       "slug": "/content-title-no2",
       "domain_name": "default",
-      "blog_url_override": "/blog/override2"
+      "blog_url": "/blog/override2"
     });
     let expectedTitle = contentmdInstance4.title;
     let expectedSlug  = contentmdInstance4.slug;

@@ -4,6 +4,10 @@ export class UpdateDomainDto {
 
   @IsString()
   @IsOptional()
+  acct_id: number;
+
+  @IsString()
+  @IsOptional()
   name: string;
 
   @IsString()

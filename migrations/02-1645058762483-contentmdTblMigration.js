@@ -33,7 +33,7 @@ module.exports = class contentmdTblMigration1645058762483 {
             { name: 'content_id', type: 'varchar' },
             { name: 'title',      type: 'varchar' },
             { name: 'slug',       type: 'varchar' },
-            { name: 'base_url_override',  type: 'varchar' },
+            { name: 'base_url',   type: 'varchar' },
             { name: 'excerpt', type: 'varchar'    },
             { name: 'images',  type: 'varchar'    },
             { name: 'content_type', type: 'varchar' },

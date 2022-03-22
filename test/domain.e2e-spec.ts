@@ -4,7 +4,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 // import { DomainModule } from '../src/domain/domain.module';
-import { CreateDomainDto } from './../src/domain/dto/create-domain.dto';
+import { CreateDomainDto } from '../src/domain/dto/create-domain.dto';
 import { domains } from './seeds/domain.seed';
 import { Domain } from '../src/domain/entities/domain.entity';
 
@@ -27,8 +27,6 @@ describe('Domain Controller (e2e)', () => {
   // ************************************************************* */
   // Inputs to test cases
   // ************************************************************* */
-
-  "image1,alt|image2,alt" 
 
   let acctId = 1;  
   let nonExistentId = 999
@@ -169,7 +167,36 @@ describe('Domain Controller (e2e)', () => {
       .expect(({ body }) => {
         expect(body.name).toEqual(expectedName);
       })
+  });
 
+  // TEST #6 
+  it('Get domain by name that exists', () => {
+
+    /* expected values */
+    let expectedStatus = 200;  
+    let expectedName  = 'default';
+
+    return request(app.getHttpServer())
+      .get(`/domains/name/default`)
+      .expect(expectedStatus)
+      .expect(({ body }) => {
+        expect(body.name).toEqual(expectedName);
+      })
+  });
+
+  // TEST #6 
+  it('Get domain by name that DOES NOT exist', () => {
+
+    /* expected values */
+    let expectedStatus = 404;  
+    let expectedErrMsg = "Not Found";
+
+    return request(app.getHttpServer())
+      .get(`/domains/name/notexistentname`)
+      .expect(expectedStatus)
+      .expect(({ body }) => {
+        expect(body.error).toBe(expectedErrMsg);
+      })
   });
 
   // TEST #6 
@@ -181,7 +208,7 @@ describe('Domain Controller (e2e)', () => {
 
     // const { body } = await request(app.getHttpServer())
     return request(app.getHttpServer())
-      .get(`/domains?acctid=${acctId}`)
+      .get(`/domains`)
       .expect(200)
       .expect(({ body }) => {
         expect(body.length).toBe(expectedNumDomains);
@@ -189,7 +216,7 @@ describe('Domain Controller (e2e)', () => {
       })
   });
 
-  // TEST #7 
+  // TEST #8 
   it('Get domain (by id) that does not exist  ', () => {
     
     /* expected values */
@@ -207,11 +234,12 @@ describe('Domain Controller (e2e)', () => {
         expect(1).toEqual(1);
       })
   });
+
   // ********************************************************************
   // PATCH related Test to update either base_url or name (aka rename) 
   // ********************************************************************
 
-  // TEST #8 
+  // TEST #9 
   it('Update both base_url and domain name for given domain id ', () => {
 
     /* expected values */
@@ -233,7 +261,7 @@ describe('Domain Controller (e2e)', () => {
       })
   });
 
-  // TEST #9 
+  // TEST #10 
   it('Try to update properties for domain that does not exist ', () => {
 
     /* expected values */
@@ -262,7 +290,7 @@ describe('Domain Controller (e2e)', () => {
   // DELETE Test to delete single domain by id
   // ********************************************************************
 
-  // TEST #10 
+  // TEST #11 
   it('Delete single domain by domain id ', () => {
 
     /* input; domain id */
@@ -283,7 +311,7 @@ describe('Domain Controller (e2e)', () => {
       })
   });
 
-  // TEST #11 
+  //TEST #12 
   it('Delete domain by domain id that does not exist', () => {
 
     /* input; domain id */

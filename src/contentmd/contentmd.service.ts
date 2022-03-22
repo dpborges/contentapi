@@ -1,3 +1,4 @@
+import { CopyContentmdDto } from './dto/copy-contentmd.dto';
 import { Injectable, Query, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getRepository } from 'typeorm';
@@ -55,8 +56,16 @@ export class ContentmdService {
     return this.contentmdRepo.save(newContentMd);
   }
 
-  findAll() {
-    return `This action returns all contentmd`;
+  findAll(acct_id: number, domain_name: string) {
+    const domain = this.domainService.findByName(acct_id, domain_name);
+    return getRepository(Contentmd)  // this is table
+      .createQueryBuilder('contentmd') // this is alias
+      .innerJoinAndSelect('contentmd.domain', 'domain')
+      .where("contentmd.acct_id = :acct_id", { acct_id })
+      // .andWhere("contentmd.domain_id = :domain_id", { domain_id })
+      .orderBy("contentmd.create_date", "DESC")
+      // .printSql()
+      .getMany();
   }
 
   /**
@@ -64,15 +73,33 @@ export class ContentmdService {
    * @param domain_id 
    * @returns Contentmd[]
    */
-  findAllByAcctAndDomainId(acct_id: number, domain_id: number) {  
+  // findAllByAcctAndDomainId(acct_id: number, domain_name: string) {  
+  //   return getRepository(Contentmd)  // this is table
+  //     .createQueryBuilder('contentmd') // this is alias
+  //     .innerJoinAndSelect('contentmd.domain', 'domain')
+  //     .where("contentmd.acct_id = :acct_id", { acct_id })
+  //     .andWhere("contentmd.domain_id = :domain_id", { domain_id })
+  //     .orderBy("contentmd.create_date", "DESC")
+  //     // .printSql()
+  //     .getMany();
+  // }
+
+  /**
+   * find all content meta data records within the given domain
+   * @param acct_id 
+   * @param domain_id 
+   * @param slug
+   * @returns Contentmd
+   */
+   findByAcctDomainIdAndSlug(acct_id: number, domain_id: number, slug: string) {  
     return getRepository(Contentmd)  // this is table
       .createQueryBuilder('contentmd') // this is alias
-      .innerJoinAndSelect('contentmd.domain', 'domain')
+      .innerJoinAndSelect('contentmd.domain', 'domain')  // join column, join entity
       .where("contentmd.acct_id = :acct_id", { acct_id })
       .andWhere("contentmd.domain_id = :domain_id", { domain_id })
-      .orderBy("contentmd.create_date", "DESC")
-      // .printSql()
-      .getMany();
+      .andWhere("contentmd.slug = :slug", { slug })
+      .printSql()
+      .getOne();
   }
 
   /**
@@ -120,6 +147,46 @@ export class ContentmdService {
     }
     return this.contentmdRepo.remove(existingContentmd);
   }
+
+  /**
+   * Requirement: be able to copy content from one domain (eg. staging) to a
+   * another (eg.production). Whenever I update or make a correction to content,
+   * I should be able to copy/replace content in the target domain (eg production).
+   * To ensure I am replacing the correct content I will be matching on slug.
+   * @param id 
+   * @param copyContentmdDto
+   * @returns Contentmd
+   */
+  async copy(id: number, copyContentmdDto: CopyContentmdDto) {
+    /* check if source content id exists */
+    let sourceContent: any = await this.contentmdRepo.findOne(id);
+    if (!sourceContent) { 
+      throw new NotFoundException(`Content id:(${id}) was not found`)
+    }
+
+    /* set the copyToDomain provided on request body, otherwise default to source domain */
+    const { name: sourceDomainName } = sourceContent.domain;
+    const { domain_name: targetDomainName } = copyContentmdDto;
+    const copyToDomain = targetDomainName ? targetDomainName : sourceDomainName;
+    
+    /* Cast sourceContent to the CreateContentDto type by updating sourceContent properties 
+       to align with CreateContentmdDto */
+    sourceContent.domain_name = copyToDomain;  /* add the domain name */
+    delete sourceContent.id;                   /* delete domain relation */
+    delete sourceContent.domain;               /* delete domain relation */
+    delete sourceContent.domain_id;            /* delete the domain_id */
+    let targetContent: CreateContentmdDto = {
+      ...sourceContent,
+      copyContentmdDto
+    } 
+    let newContentCopy = await this.create(targetContent)
+    return newContentCopy;
+    // return sourceContent;
+    // return sourceContent;
+    // return this.contentmdRepo.remove(existingContentmd);
+    // return this.contentmdRepo.findOne(id);
+  }
+
 
   // ************************************************************************
   // Predicate functions

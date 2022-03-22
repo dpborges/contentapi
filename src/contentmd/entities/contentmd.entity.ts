@@ -33,7 +33,7 @@ export class Contentmd {
   slug: string;
 
   @Column("varchar", { default: '' })
-  base_url_override: string;
+  base_url: string;
 
   @Column("varchar", { default: '' })
   excerpt: string;
@@ -62,7 +62,7 @@ export class Contentmd {
   // then property will be an array. If target relation is a One, property will be an entity type. 
   // Note, the ManyToOne decorator will add the domain_id to the contentmd table. To access the
   // domain for the Contentmd, you would access with contentmd.domain
-  @ManyToOne(() => Domain, domain => domain.contentmds)
+  @ManyToOne(() => Domain, domain => domain.contentmds, { eager: true })
   domain: Domain;
 
   @CreateDateColumn()

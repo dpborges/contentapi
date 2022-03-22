@@ -8,6 +8,7 @@ export class CreateDomainDto {
   @IsString()
   base_url: string;
 
+  @IsOptional()
   @IsNumber()
   acct_id: number;
 

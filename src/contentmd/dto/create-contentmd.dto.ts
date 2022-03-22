@@ -23,7 +23,7 @@ export class CreateContentmdDto {
 
   @IsOptional() 
   @IsString()
-  base_url_override: string = '';
+  base_url: string = '';
 
   @IsString()
   @IsOptional() 

@@ -1,5 +1,6 @@
-PHASE1 - Implement Graphql API for basic content operations(All backend work)
-
+***************************************************************************************
+PHASE1 - Implement REST API for basic content operations(All backend work)
+***************************************************************************************
 - (DONE) Use NestJS CLI to create domain resource in nestjs
 - (DONE) Define the properties for the entity
 - (DONE) Add the typeorm @CreateDateColumn and @UpdateDateColumn decorators to entity
@@ -18,37 +19,26 @@ PHASE1 - Implement Graphql API for basic content operations(All backend work)
       o (done) create duplicate record in another domain
       o (done) Do a get of  1 record and Access images array
       o (done) Do a get all content for a particular domain.
-      o Update the title and the blog_url_override of an existing record
-      o create a domain with no content and see result when trying to get content from empty domain
-
-- (NS) Change blog_url and blog_url_override to base_url or url_prefix; 
-       ..make both of them the same on domain and contentmd record
-- (NS) Implement a way to seed data for a particular test suite.  In my case I want to 
-       seed domain data bfore running the contentmd test cases.
-       Take a look at the blog post below and see if this is possible
-       https://blog.echobind.com/up-and-running-nextjs-and-typeorm-2c4dff5d7250
-
-- (NS) Define Integration tests
-- (NS) Implement Test cases
-- (NS) check in to github
-- (NS) Create migration for contentmd
-- (NS) Define integration test cases below
+      o (done) Update the title and the blog_url of an existing record
+      o (done) create a domain with no content and see result when trying to get content from empty domain
+- (DONE) Implement a way to seed data for a particular test suite.  In my case I want to 
+       seed domain data before running the contentmd test cases.
+- (DONE) Define Integration tests
+- (DONE) Implement Test cases
+- (DONE) check in to github
+- (DONE) Create migration for contentmd
+- (DONE) Define integration test cases below
       o (done) create new resource
       o (done) write test case 
       o (done) create 2nd domain 
       o (done) throw exception creating duplicate name in given account
       o (done) read up on typeorm migrations
       o (done) create migration to build Domain table
-      o determine how I use the Typeorm migrationsRun property to run migration 
+      o (done) determine how I use the Typeorm migrationsRun property to run migration 
          everytime I was to run a test.
       o (done) determine how to clean up table before running all my tests
-- (NS) Implement Test cases
-- DO FOLLOWING: 
-  (SKIP THIS ONE)
-  See that I have implemented class below correctly
-     https://github.com/BrunnerLivio/nestjs-integration-test-db-example/blob/master/src/test/testing.module.ts
-  Read my udemy course to see which model if falls into (eg. same module or separate modules)
-  Try to set this up so I can call getEntities from TestUtils
+- (DONE) Implement Test cases
+DO FOLLOWING: 
 - (DONE) Check In code in github
 - Implement integration tests for all the alternate use cases scenarios
      - (DONE) Try to create domain that already exists.
@@ -56,18 +46,58 @@ PHASE1 - Implement Graphql API for basic content operations(All backend work)
      - (DONE) Update domain that does not exist and determine outcome; is default outcome acceptable
      - (DONE) Remove domain that does not exist and determine outcome; is default outcome acceptable
 - Check In code in github
+>>>>>> I AM HERE <<<<<<
+- Test FindByName query to see if find method is And'ing the properties as part of where clause
+  ...try to use printSql() function to see the SQL
+- Read up on queryBuilder and the repository find API and determine why I would use one over the other.
 
+- Enable all my domain routes and make sure that all routes are working as expected
+- (INPROG) Before completing copy content controller resource, I need to assume I will
+  be injecting the  acct_id from a session object so that it does not need to be part of the
+  route. I need to redesign existing routes such I have 
+        GET /domain/:name/contentmd/:cid when I what to use domain other than default and
+        GET /contentmd/:cid when I want to use default domain
+  To do this, create a fake session object to have acct_id in the controller
+- Run test:e2e to ensure all the routes are still working.
+- (HOLD) Implement copy content. S/D i be providing creator id in the request?
+- Check In code in github
 >>>>>>  repeat above for the contentmd resource <<<<<<<<
 
-- Identify/document all other steps up until creating the putContent, getContent,
-  and getContentById resolvers
-- Create a migration file that creates contentmd table in sqlite
+***************************************************************************************
+PHASE2 - Implement S3 Logic content store. I need to implement S3 content store to see 
+         how to refactor code before implementing any more services
+***************************************************************************************
+- Review following youtube videos
+    https://www.youtube.com/watch?v=_DRklnnJbig&t=427s   // basic node and s3
+    https://www.youtube.com/watch?v=NZElg91l_ms          // example using multer
+- See this boiler plate example using multer 
+  https://github.com/rohan-paul/aws-s3-file_upload-node-mongo-react-multer
+
 - Implement getContent, getContentById, putContent
 - Create integration tests for getContent, getContentById and putContent
-- Research how to implement grapqhql pagination for getContent
+
+***************************************************************************************
+PHASE2 - Refactoring / Enhancements
+***************************************************************************************
+- If I plan to use slug as matching key when doing copy, create index on slug column in the
+  contentmd table
+- Review every route and ensure that each route is acct_id aware. Determine if and 
+  when it may not be needed (which I think is never)
+- If acct_id is going to be visible in the url, I need to changes its type to uuid
+  Consider using nanoid as its small and I don't see accounts exceeding 100's of thousands 
+  of records. If it does not work, then resort to uuid/v4. See following link for nanoid
+  https://www.npmjs.com/package/
+- Create required index on domain table on acct_id; that is all that should be needed.
+- Update my code so I implement a cascade insert, so that when I insert a 
+  contentmd record, I also insert the associated domain. (NOT sure this is necessary
+  because I am more or less doing the same thing as preload)
+- (not sure if i did this) Change blog_url and blog_url_override to base_url or url_prefix; 
+       ..make both of them the same on domain and contentmd record
 - Implement integration test for pagination.
 
-PHASE2 - Implement AuthAPI integration with ContentApi microservice
+***************************************************************************************
+PHASE3 - Implement AuthAPI integration with ContentApi microservice
+***************************************************************************************
 
 - Create Conceptual platform architecture depicting how authservice and contentapi
 - Refresh how authentication worked in the Nestjs REST Users/auth module.

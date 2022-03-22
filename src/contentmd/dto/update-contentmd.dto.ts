@@ -22,7 +22,7 @@ export class UpdateContentmdDto extends PartialType(CreateContentmdDto) {
 
   @IsOptional()
   @IsString()
-  base_url_override: string;
+  base_url: string;
 
   @IsOptional()
   @IsString()
