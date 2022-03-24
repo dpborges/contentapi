@@ -45,21 +45,15 @@ DO FOLLOWING:
      - (DONE) Find domain id that does not exist and determine outcome; is default outcome acceptable
      - (DONE) Update domain that does not exist and determine outcome; is default outcome acceptable
      - (DONE) Remove domain that does not exist and determine outcome; is default outcome acceptable
-- Check In code in github
+- (DONE) Check In code in github
 >>>>>> I AM HERE <<<<<<
-- Test FindByName query to see if find method is And'ing the properties as part of where clause
-  ...try to use printSql() function to see the SQL
-- Read up on queryBuilder and the repository find API and determine why I would use one over the other.
-
-- Enable all my domain routes and make sure that all routes are working as expected
-- (INPROG) Before completing copy content controller resource, I need to assume I will
-  be injecting the  acct_id from a session object so that it does not need to be part of the
-  route. I need to redesign existing routes such I have 
-        GET /domain/:name/contentmd/:cid when I what to use domain other than default and
-        GET /contentmd/:cid when I want to use default domain
-  To do this, create a fake session object to have acct_id in the controller
+- (DONE) Test FindByName query to see if find method is And'ing the properties as part of where clause
+- (DONE) Enable all my domain routes and make sure that all routes are working as expected
+- (INPROG) Refactor all services to inject acct_id
+   >>> LEFT OFF ON LINE 47 of requests.http
 - Run test:e2e to ensure all the routes are still working.
-- (HOLD) Implement copy content. S/D i be providing creator id in the request?
+- (NS) Implement promote content controller resource
+- (NS) Implement promote content controller resource e2e test
 - Check In code in github
 >>>>>>  repeat above for the contentmd resource <<<<<<<<
 
@@ -82,7 +76,8 @@ PHASE2 - Refactoring / Enhancements
 - If I plan to use slug as matching key when doing copy, create index on slug column in the
   contentmd table
 - Review every route and ensure that each route is acct_id aware. Determine if and 
-  when it may not be needed (which I think is never)
+  when it may not be needed (which I think is never)  
+- Implement versioning; is it 2 separate deployments
 - If acct_id is going to be visible in the url, I need to changes its type to uuid
   Consider using nanoid as its small and I don't see accounts exceeding 100's of thousands 
   of records. If it does not work, then resort to uuid/v4. See following link for nanoid
@@ -93,7 +88,8 @@ PHASE2 - Refactoring / Enhancements
   because I am more or less doing the same thing as preload)
 - (not sure if i did this) Change blog_url and blog_url_override to base_url or url_prefix; 
        ..make both of them the same on domain and contentmd record
-- Implement integration test for pagination.
+- Implement pagination.
+- Implement caching
 
 ***************************************************************************************
 PHASE3 - Implement AuthAPI integration with ContentApi microservice

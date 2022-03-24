@@ -20,50 +20,51 @@ export class ContentmdService {
 
   /**
    * Creates a content meta data record in database. It ensures the domain exist
-   * within the acct_id and the slug does not already exist
+   * within the acct_id and then checks that the slug does not already exist
+   * @param acct_id
    * @param contentmdDto 
    * @returns Promise<Contentmd>
    */
-  async create(contentmdDto: CreateContentmdDto) {
-    let { domain_name, acct_id } = contentmdDto;
+  async create(acct_id: number, contentmdDto: CreateContentmdDto) {
+    let { domain_name } = contentmdDto;
 
     /* ensure domain name for the given acct_id exists  */
-    let domainList = await this.domainService.findAllByAcctId(acct_id);
-    let foundDomain = domainList.find(domain => domain.name === domain_name)
-
-    // const targetDomain = await this.domainService.findOne(contentmdDto.domain_id)
+    let foundDomain = await this.domainService.findByName(acct_id, domain_name);
     if (!foundDomain) {
       throw new NotFoundException(`domain '${contentmdDto.domain_name}' does not exists `)
     } 
-   
-    console.log("FOUND DOMAIN ", foundDomain)
 
     /* checks to see if this is duplicate content */
     const isDuplicate = await this.isDuplicate(foundDomain.id, contentmdDto);
-    console.log("THE VALUE OF IS DUPLICATE IS FROM create FUNCTION", isDuplicate);    
     if (isDuplicate) {
       throw new ConflictException(`Content already exists with this same slug, filename and filetype in '${domain_name}' domain.`)
     } 
         
-    console.log("THIS INSTANCE OF CONTENTMD ");
-    console.log(JSON.stringify(contentmdDto,null,2));
-    
     /* create instance of Content Metadata */
     const newContentMd = this.contentmdRepo.create(contentmdDto);
-    /* tack on the domain entity to the contentmd instance */
-    newContentMd.domain = foundDomain;
+    /* tack on the domain entity to the contentmd instance and the acct_id*/
+    newContentMd.domain  = foundDomain;
+    newContentMd.acct_id = acct_id;
     /* save to repository */
     return this.contentmdRepo.save(newContentMd);
   }
 
-  findAll(acct_id: number, domain_name: string) {
-    const domain = this.domainService.findByName(acct_id, domain_name);
-    return getRepository(Contentmd)  // this is table
+  async findAll(acct_id: number, domainName: string, sortAscBy: string, sortDescBy: string) {
+    /* resolve domain name */
+    domainName = domainName ? domainName : "default"; // if no domain_name provided, use default
+    /* see if user provided a sort query parm, if not, use default DESC order on create_date */
+    const sortField = this.determineSortField(sortAscBy, sortDescBy);
+    /* look up domain and pull out its id to join with contentmd*/
+    const domain = await this.domainService.findByName(acct_id, domainName);
+    const domain_id = domain.id;
+
+    /* get contentmd records */
+    return getRepository(Contentmd)    // this is table
       .createQueryBuilder('contentmd') // this is alias
       .innerJoinAndSelect('contentmd.domain', 'domain')
       .where("contentmd.acct_id = :acct_id", { acct_id })
-      // .andWhere("contentmd.domain_id = :domain_id", { domain_id })
-      .orderBy("contentmd.create_date", "DESC")
+      .andWhere("contentmd.domain_id = :domain_id", { domain_id })
+      .orderBy(`contentmd.${sortField.name}`, sortField.order)
       // .printSql()
       .getMany();
   }
@@ -84,14 +85,42 @@ export class ContentmdService {
   //     .getMany();
   // }
 
+  
   /**
-   * find all content meta data records within the given domain
+   * Get content metadata record by content id or by using slug as id
    * @param acct_id 
-   * @param domain_id 
+   * @param idOrSlug 
+   * @param domainName
+   * @param useSlugAsId 
+   * @returns Promise<Contentmd>
+   */
+   findByIdOrSlug(acct_id: number, idOrSlug: string, domainName: string, useSlugAsId: string) {
+    if (!idOrSlug) {   // needed for sqlite, otherwise findOne below will still return first found
+      return null;
+    }
+    /* resolve domain name */
+    domainName = domainName ? domainName : "default"; // if no domain_name provided, use default
+    /* maintain separate variables for the numeric id and the slug id */
+    let id:     number = !useSlugAsId || useSlugAsId === "false" ? parseInt(idOrSlug) : 0;
+    let slugId: string =  useSlugAsId && useSlugAsId === "true"  ? idOrSlug : "";
+    /* route call to appropriate method based on whether using id or slugId */
+    if (id) {  
+      return this.contentmdRepo.findOne(id)
+    } else if (slugId) {
+      return this.findBySlug(acct_id, domainName, slugId)
+    }
+  }
+
+  /**
+   * find content by slug for given domain
+   * @param acct_id 
+   * @param domainName 
    * @param slug
    * @returns Contentmd
    */
-   findByAcctDomainIdAndSlug(acct_id: number, domain_id: number, slug: string) {  
+   async findBySlug(acct_id: number, domainName: string, slug: string) {  
+    const domainEntity = await this.domainService.findByName(acct_id, domainName)
+    const domain_id = domainEntity.id;
     return getRepository(Contentmd)  // this is table
       .createQueryBuilder('contentmd') // this is alias
       .innerJoinAndSelect('contentmd.domain', 'domain')  // join column, join entity
@@ -103,26 +132,34 @@ export class ContentmdService {
   }
 
   /**
-   * Get content metadata record by id
-   * @param id 
-   * @returns Promise<Contentmd>
+   * find content by id for the given domain
+   * @param acct_id 
+   * @param id
+   * @returns Contentmd
    */
-  findOne(id: number) {
-    if (!id) {   // needed for sqlite, otherwise findOne below will still return first found
-      return null;
-    }
-    return this.contentmdRepo.findOne(id)
+   async findById(acct_id: number, id: number) {  
+    const [ contentmdEntity ] = await this.contentmdRepo.find({
+      where: {
+        acct_id,
+        id
+      }
+    }); 
+    if (!contentmdEntity) { throw new NotFoundException(`Content for id ${id} not found`) }
+    return contentmdEntity; 
   }
-
+ 
   /**
    * Updates selective properties that are in UpdateContentmdDto
+   * @param acct_id 
    * @param id 
    * @param updateContentmdDto 
    * @returns Contentmd
    */
-  async update(id: number, updateContentmdDto: UpdateContentmdDto) {
+  async update(acct_id: number, id: number, updateContentmdDto: UpdateContentmdDto) {
     /* retrieve instance of contentmd */
-    let currentContentmd = await this.contentmdRepo.findOne(id);
+    console.log("This is acct_id ", acct_id);
+    console.log("This is id ", id);
+    let currentContentmd = await this.findById(acct_id, id);
     if (!currentContentmd) {
       throw new NotFoundException(`Content id: ${id} not found`)
     }
@@ -157,35 +194,35 @@ export class ContentmdService {
    * @param copyContentmdDto
    * @returns Contentmd
    */
-  async copy(id: number, copyContentmdDto: CopyContentmdDto) {
-    /* check if source content id exists */
-    let sourceContent: any = await this.contentmdRepo.findOne(id);
-    if (!sourceContent) { 
-      throw new NotFoundException(`Content id:(${id}) was not found`)
-    }
+  // async copy(id: number, copyContentmdDto: CopyContentmdDto) {
+  //   /* check if source content id exists */
+  //   let sourceContent: any = await this.contentmdRepo.findOne(id);
+  //   if (!sourceContent) { 
+  //     throw new NotFoundException(`Content id:(${id}) was not found`)
+  //   }
 
-    /* set the copyToDomain provided on request body, otherwise default to source domain */
-    const { name: sourceDomainName } = sourceContent.domain;
-    const { domain_name: targetDomainName } = copyContentmdDto;
-    const copyToDomain = targetDomainName ? targetDomainName : sourceDomainName;
+  //   /* set the copyToDomain provided on request body, otherwise default to source domain */
+  //   const { name: sourceDomainName } = sourceContent.domain;
+  //   const { domain_name: targetDomainName } = copyContentmdDto;
+  //   const copyToDomain = targetDomainName ? targetDomainName : sourceDomainName;
     
-    /* Cast sourceContent to the CreateContentDto type by updating sourceContent properties 
-       to align with CreateContentmdDto */
-    sourceContent.domain_name = copyToDomain;  /* add the domain name */
-    delete sourceContent.id;                   /* delete domain relation */
-    delete sourceContent.domain;               /* delete domain relation */
-    delete sourceContent.domain_id;            /* delete the domain_id */
-    let targetContent: CreateContentmdDto = {
-      ...sourceContent,
-      copyContentmdDto
-    } 
-    let newContentCopy = await this.create(targetContent)
-    return newContentCopy;
-    // return sourceContent;
-    // return sourceContent;
-    // return this.contentmdRepo.remove(existingContentmd);
-    // return this.contentmdRepo.findOne(id);
-  }
+  //   /* Cast sourceContent to the CreateContentDto type by updating sourceContent properties 
+  //      to align with CreateContentmdDto */
+  //   sourceContent.domain_name = copyToDomain;  /* add the domain name */
+  //   delete sourceContent.id;                   /* delete domain relation */
+  //   delete sourceContent.domain;               /* delete domain relation */
+  //   delete sourceContent.domain_id;            /* delete the domain_id */
+  //   let targetContent: CreateContentmdDto = {
+  //     ...sourceContent,
+  //     copyContentmdDto
+  //   } 
+  //   let newContentCopy = await this.create(targetContent)
+  //   return newContentCopy;
+  //   // return sourceContent;
+  //   // return sourceContent;
+  //   // return this.contentmdRepo.remove(existingContentmd);
+  //   // return this.contentmdRepo.findOne(id);
+  // }
 
 
   // ************************************************************************
@@ -204,6 +241,30 @@ export class ContentmdService {
       .getOne();
 
       return  contentmdInstance ? true : false;
-}
+  }
+
+  // ************************************************************************
+  // Helper Functions
+  // ************************************************************************
+  /* This function determines which of 2 possible query parameters were used
+     and converts it into an object with field name and order (eg. ASC). Since
+     the property values in the boject will be used to construct a query, they 
+     should reflect actual database column name and syntax (eg. ASC , DESC) */
+  determineSortField(sortAscBy: string, sortDescBy: string): any {
+    let dbSortField = "create_date"; /* set default sort field */
+    if (sortAscBy) {
+      if (sortAscBy.toLowerCase() === "createdate") { dbSortField = "create_date "};
+      return { name: dbSortField, order: "ASC"}
+    } else if (sortDescBy) {
+      if (sortDescBy.toLowerCase() === "createdate") { dbSortField = "create_date "};
+      return { name: dbSortField, order: "DESC"}
+    } else return { name: dbSortField, order: "DESC"};  /* if no sortfield, set default */
+  }
+
+  // ************************************************************************
+  // Helper functions
+  // ************************************************************************
+
+  
 
 }

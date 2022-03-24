@@ -17,10 +17,11 @@ const sessionObj = { acct_id: 1 }
 export class ContentmdController {
   constructor(private readonly contentmdService: ContentmdService) {}
 
-  // @Post()
-  // create(@Body() body: CreateContentmdDto) {
-  //   return this.contentmdService.create(body);
-  // }
+  @Post('contentmd')
+  create(@Body() body: CreateContentmdDto) {
+    const { acct_id } = sessionObj;
+    return this.contentmdService.create(acct_id, body);
+  }
 
   // @Post(':id/copy')
   // copy(@Param('id') id: number, @Body() copyContentmdDto: CopyContentmdDto) {
@@ -35,10 +36,11 @@ export class ContentmdController {
   // ***** LEAVE THIS BLOCK COMMENTED **********
 
   @Get('contentmd')
-  findAll() {
+  findAll(@Query('domainName') domainName: string,
+          @Query('sortDescBy') sortDescBy: string,
+          @Query('sortAscBy') sortAscBy: string) {
     let acct_id: number = sessionObj.acct_id;
-    let domain_name: string = "default";
-    return this.contentmdService.findAll(acct_id, domain_name);
+    return this.contentmdService.findAll(acct_id, domainName, sortAscBy, sortDescBy);
   }
   
   // @Get()
@@ -62,25 +64,30 @@ export class ContentmdController {
   //   // return this.contentmdService.findByAcctDomainIdAndSlug(parseInt(acct_id), parseInt(domain_id), slug);
   // }
 
-  // @Get(':id')
-  // async findOne(@Param('id') id: string) {
-  //   const contentmd = await this.contentmdService.findOne(parseInt(id));
-  //   if (!contentmd) {
-  //     throw new NotFoundException(`content meta data not found for id: ${id}`)
-  //   }
-  //   return contentmd;
-  // }
+  @Get('contentmd/:idOrSlug')
+  async findByIdOrSlug(@Param('idOrSlug') idOrSlug: string,
+                @Query('useSlugAsId') useSlugAsId: string,
+                @Query('domainName') domainName: string) {
+    const { acct_id } = sessionObj;
+    const contentmd = await this.contentmdService.findByIdOrSlug(acct_id, idOrSlug, domainName, useSlugAsId);
+    if (!contentmd) {
+      throw new NotFoundException(`Content not found for id: ${idOrSlug}`)
+    }
+    return contentmd;
+  }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateContentmdDto: UpdateContentmdDto) {
-  //   return this.contentmdService.update(parseInt(id), updateContentmdDto);
-  // }
+  @Patch('contentmd/:id')
+  update(@Param('id') id: string, @Body() updateContentmdDto: UpdateContentmdDto) {
+    const { acct_id } = sessionObj;
+    return this.contentmdService.update(acct_id, parseInt(id), updateContentmdDto);
+  }
 
   // @Delete(':id')
   // remove(@Param('id') id: string) {
   //   return this.contentmdService.remove(parseInt(id));
   // }
 
-  
+
+
 
 }

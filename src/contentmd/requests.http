@@ -3,12 +3,11 @@ POST http://localhost:3000/contentmd
 content-type: application/json
 
 {
-  "acct_id": 1,
   "domain_name": "default",
   "creator_id": "{{$guid}}",
-  "content_id": "acctname1/domainname1",
-  "title": "content title no1",
-  "slug": "/content-title-no1",
+  "content_id": "acctname1/domainnamex2",
+  "title": "content title nox3",
+  "slug":  "content-title-nox3",
   "base_url": "/blog/override",
   "excerpt": "this topic is is a must read",
   "images": "string of images",
@@ -18,30 +17,31 @@ content-type: application/json
   "word_cnt":  382 
 }
 
-
-### Get all contentmd in the default domain_id sorted in descending order by create_date
+### Get all contentmd in the default domain_id sorted in descending order by createdate
 GET http://localhost:3000/contentmd
-  
-### Get all contentmd for particular domain_id, in an acct, sorted in descending order by create_date
-GET http://localhost:3000/contentmd?acct_id=1&domain_id=1
 
-### Get contentmd record with specific slug, with given acct_id and domain_id
-GET http://localhost:3000/acct/aid/contentmd/domain/1/slug/content-title-no4
-# GET http://localhost:3000/contentmd?acct_id=1&domain_id=1&slug="/content-title-no4"
+### Get all contentmd in the default domain_id sorted in ascending order by createdate
+GET http://localhost:3000/contentmd?sortAscBy=createDate
+
+### Get all contentmd in the specified domain_id by the default DESC sort order on createdate
+GET http://localhost:3000/contentmd?domainName=emptydomain
+
+### Get all contentmd in the specified domain_id in ASC order by createdate
+GET http://localhost:3000/contentmd?sortAscBy=createDate&domainName=emptydomain
 
 ### Get contentmd by primary key id 
-GET http://localhost:3000/contentmd/1
+GET http://localhost:3000/contentmd/2
 
-### Get all contentmd for particular acct_id sorted in descending order by create_date 
-GET http://localhost:3000/contentmd?acct_id=1
+### Get content using slug as id
+GET http://localhost:3000/contentmd/content-title-no4?useSlugAsId=true
 
 ### Update content metadata attributes
-PATCH http://localhost:3000/contentmd/1
+PATCH http://localhost:3000/contentmd/2
 content-type: application/json
 
 {
-  "title": "content title no1",
-  "slug": "/content-title-no1"
+  "title": "content title no4",
+  "slug": "content-title-no4"
 }
 
 ###  Delete domain given id

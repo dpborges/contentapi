@@ -3,9 +3,6 @@ import { Domain } from  '../../domain/entities/domain.entity';
 
 export class CreateContentmdDto {
 
-  @IsNumber()
-  acct_id: number;
-
   @IsString()
   creator_id: string;
 
