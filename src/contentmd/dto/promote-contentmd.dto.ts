@@ -2,9 +2,9 @@ import { IsString, IsNumber, IsOptional, IsArray } from 'class-validator';
 import { Domain } from  '../../domain/entities/domain.entity';
 
 /**
- * The CopyContentDto contains optional fields that can be changed on the copy
+ * The PromoteContentDto contains optional fields that can be changed on the copy
  */
-export class CopyContentmdDto {
+export class PromoteContentmdDto {
   
   @IsNumber()
   acct_id: number;

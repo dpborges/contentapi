@@ -1,5 +1,7 @@
-import { CopyContentmdDto } from './dto/copy-contentmd.dto';
-import { Injectable, Query, ConflictException, NotFoundException } from '@nestjs/common';
+import { PromoteContentmdDto } from './dto/promote-contentmd.dto';
+import { Injectable, Query, ConflictException, 
+         NotFoundException, NotAcceptableException, BadRequestException } 
+from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getRepository } from 'typeorm';
 import * as R from 'ramda';
@@ -88,10 +90,10 @@ export class ContentmdService {
   
   /**
    * Get content metadata record by content id or by using slug as id
-   * @param acct_id 
-   * @param idOrSlug 
-   * @param domainName
-   * @param useSlugAsId 
+   * @param {number} acct_id 
+   * @param {string | number}idOrSlug 
+   * @param {string} domainName
+   * @param {string} useSlugAsId 
    * @returns Promise<Contentmd>
    */
    findByIdOrSlug(acct_id: number, idOrSlug: string, domainName: string, useSlugAsId: string) {
@@ -100,7 +102,7 @@ export class ContentmdService {
     }
     /* resolve domain name */
     domainName = domainName ? domainName : "default"; // if no domain_name provided, use default
-    /* maintain separate variables for the numeric id and the slug id */
+    /* determine if user sent id or slug and separate variables  */
     let id:     number = !useSlugAsId || useSlugAsId === "false" ? parseInt(idOrSlug) : 0;
     let slugId: string =  useSlugAsId && useSlugAsId === "true"  ? idOrSlug : "";
     /* route call to appropriate method based on whether using id or slugId */
@@ -144,7 +146,7 @@ export class ContentmdService {
         id
       }
     }); 
-    if (!contentmdEntity) { throw new NotFoundException(`Content for id ${id} not found`) }
+    if (!contentmdEntity) { throw new NotFoundException(`Content id: ${id} not found`) }
     return contentmdEntity; 
   }
  
@@ -157,14 +159,10 @@ export class ContentmdService {
    */
   async update(acct_id: number, id: number, updateContentmdDto: UpdateContentmdDto) {
     /* retrieve instance of contentmd */
-    console.log("This is acct_id ", acct_id);
-    console.log("This is id ", id);
     let currentContentmd = await this.findById(acct_id, id);
-    if (!currentContentmd) {
-      throw new NotFoundException(`Content id: ${id} not found`)
-    }
-    /* update  contentmd */
+    /* update  contentmd instance*/
     let updatedContentmd = Object.assign(currentContentmd, updateContentmdDto)
+    /* save  contentmd instance*/
     return this.contentmdRepo.save(updatedContentmd);
   }
 
@@ -174,56 +172,81 @@ export class ContentmdService {
 
   /**
    * Deletes an existing content metadata record
-   * @param id 
-   * @returns Contentmd
+   * @param {number} acct_id 
+   * @param {number} id 
+   * @returns {Object} Contentmd
    */
-  async remove(id: number) {
-    const existingContentmd = await this.contentmdRepo.findOne(id);
-    if (!existingContentmd) {
-      throw new NotFoundException(`Content metadata id:(${id}) was not found`)
-    }
+  async remove(acct_id: number, id: number): Promise<Contentmd> {
+    const existingContentmd = await this.findById(acct_id, id); /* throws exception if not found*/
     return this.contentmdRepo.remove(existingContentmd);
   }
 
+
+
   /**
-   * Requirement: be able to copy content from one domain (eg. staging) to a
-   * another (eg.production). Whenever I update or make a correction to content,
-   * I should be able to copy/replace content in the target domain (eg production).
-   * To ensure I am replacing the correct content I will be matching on slug.
-   * @param id 
-   * @param copyContentmdDto
-   * @returns Contentmd
+   * Promote Content from current domain to another domain, by contentid or slug.
+   * @param {number} id 
+   * @param {Object} copyContentmdDto
+   * @returns {Object} Contentmd
    */
-  // async copy(id: number, copyContentmdDto: CopyContentmdDto) {
-  //   /* check if source content id exists */
-  //   let sourceContent: any = await this.contentmdRepo.findOne(id);
-  //   if (!sourceContent) { 
-  //     throw new NotFoundException(`Content id:(${id}) was not found`)
-  //   }
+  async promote(acct_id, idOrSlug, fromDomain, toDomain, useSlugAsId) {
+    /* determine if user sent id or slug and separate variables  */
+    let id:     number = !useSlugAsId || useSlugAsId === "false" ? parseInt(idOrSlug) : 0;
+    let slugId: string =  useSlugAsId && useSlugAsId === "true"  ? idOrSlug : "";
 
-  //   /* set the copyToDomain provided on request body, otherwise default to source domain */
-  //   const { name: sourceDomainName } = sourceContent.domain;
-  //   const { domain_name: targetDomainName } = copyContentmdDto;
-  //   const copyToDomain = targetDomainName ? targetDomainName : sourceDomainName;
+    /* ensure user provided the toDomain query parameter  */
+    if (!toDomain) { throw new BadRequestException(`The toDomain parameter is required`)};
+    /* ensure toDomain exists  */
+    const toDomainEntity = await this.domainService.findByName(acct_id, toDomain);
+    if (!toDomainEntity) { throw new BadRequestException(`The toDomain '${toDomain} does not exist.`)};
+
+     /* Handle case when contentmd id is provided */
+     if (id) {
+      /* check if source content id exists */
+      let fromContentmd = await this.findById(acct_id, id);
+      if (!fromContentmd) { 
+        throw new NotFoundException(`Content id:(${id}) was not found`)
+      }
+      /* obtain fromDomain from the sourceContentmd entity */
+      let { name: fromDomain }  = fromContentmd.domain;
+       /* throw exeption if fromDomain and toDomain are thesame  */
+      this.raiseErrorIfSame(toDomain, fromDomain);
+      
+      let toContentmd: PromoteContentmdDto = this.transformToPromoteDto(fromContentmd, toDomain)
+
+
+      return toContentmd;
+    }
+
+    /* Handle case when slug is provided as id */ 
+    if (slugId) {
+      /* ensure fromDomain is provided, if not, set it to default domain  */
+      if (!fromDomain) { fromDomain = 'default'};
+      /* throw exeption if fromDomain and toDomain are thesame  */
+      this.raiseErrorIfSame(toDomain, fromDomain);
+    }
+
+   
     
-  //   /* Cast sourceContent to the CreateContentDto type by updating sourceContent properties 
-  //      to align with CreateContentmdDto */
-  //   sourceContent.domain_name = copyToDomain;  /* add the domain name */
-  //   delete sourceContent.id;                   /* delete domain relation */
-  //   delete sourceContent.domain;               /* delete domain relation */
-  //   delete sourceContent.domain_id;            /* delete the domain_id */
-  //   let targetContent: CreateContentmdDto = {
-  //     ...sourceContent,
-  //     copyContentmdDto
-  //   } 
-  //   let newContentCopy = await this.create(targetContent)
-  //   return newContentCopy;
-  //   // return sourceContent;
-  //   // return sourceContent;
-  //   // return this.contentmdRepo.remove(existingContentmd);
-  //   // return this.contentmdRepo.findOne(id);
-  // }
 
+      
+    /* Cast sourceContent to the CreateContentDto type by updating sourceContent properties 
+       to align with CreateContentmdDto */
+    // sourceContent.domain_name = copyToDomain;  /* add the domain name */
+    // delete sourceContent.id;                   /* delete domain relation */
+    // delete sourceContent.domain;               /* delete domain relation */
+    // delete sourceContent.domain_id;            /* delete the domain_id */
+    // let targetContent: CreateContentmdDto = {
+    //   ...sourceContent,
+    //   copyContentmdDto
+    // } 
+    // let newContentCopy = await this.create(targetContent)
+    // return newContentCopy;
+    // return sourceContent;
+    // return sourceContent;
+    // return this.contentmdRepo.remove(existingContentmd);
+    // return this.contentmdRepo.findOne(id);
+  }
 
   // ************************************************************************
   // Predicate functions
@@ -261,10 +284,27 @@ export class ContentmdService {
     } else return { name: dbSortField, order: "DESC"};  /* if no sortfield, set default */
   }
 
-  // ************************************************************************
-  // Helper functions
-  // ************************************************************************
+  /* Throws and exception if the toDomain you are promoting to is same as fromDomain */
+  raiseErrorIfSame(fromDomain, toDomain) {
+    if (fromDomain === toDomain) { 
+      let errMsg = `Cannot promote content within same '${fromDomain}' domain.`;
+      throw new NotAcceptableException(errMsg)
+    }
+  }
 
+  transformToPromoteDto(fromContentmd, toDomain) {
+    /* change domain name to the toDomain */
+    fromContentmd.domain_name = toDomain;   
+
+    /* delete properties that are not in the create contentmd dto   */
+    delete fromContentmd.id;                   /* delete contentmd id */
+    delete fromContentmd.domain;               /* delete the domain nested object */
+    delete fromContentmd.domain_id;            /* delete the domain_id */
+    
+    return fromContentmd;
+  }
+
+ 
   
 
 }

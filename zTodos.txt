@@ -49,8 +49,11 @@ DO FOLLOWING:
 >>>>>> I AM HERE <<<<<<
 - (DONE) Test FindByName query to see if find method is And'ing the properties as part of where clause
 - (DONE) Enable all my domain routes and make sure that all routes are working as expected
-- (INPROG) Refactor all services to inject acct_id
-   >>> LEFT OFF ON LINE 47 of requests.http
+- (DONE) Refactor all services to inject acct_id
+- (IN PROGRESS) Create Promote Content Service
+    Before continuing, see what is difference between save and upsert 
+    How do I ensure that when I promote content for first time, the content is 
+    created,  and when I promote any subsequent times its replaced.
 - Run test:e2e to ensure all the routes are still working.
 - (NS) Implement promote content controller resource
 - (NS) Implement promote content controller resource e2e test

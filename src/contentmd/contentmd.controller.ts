@@ -1,4 +1,4 @@
-import { CopyContentmdDto } from './dto/copy-contentmd.dto';
+import { PromoteContentmdDto } from './dto/promote-contentmd.dto';
 import { 
   Controller, Get, Post, Body, Patch, Param, Delete, Query,
   NotFoundException
@@ -82,12 +82,18 @@ export class ContentmdController {
     return this.contentmdService.update(acct_id, parseInt(id), updateContentmdDto);
   }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.contentmdService.remove(parseInt(id));
-  // }
+  @Delete('contentmd/:id')
+  remove(@Param('id') id: string) {
+    const { acct_id } = sessionObj;
+    return this.contentmdService.remove(acct_id, parseInt(id));
+  }
 
-
-
-
+  @Post('contentmd/:idOrSlug/promote')
+  promote(@Param('idOrSlug') idOrSlug: string,
+          @Query('useSlugAsId') useSlugAsId: string,
+          @Query('fromDomain') fromDomain: string,
+          @Query('toDomain') toDomain: string) {
+    const { acct_id } = sessionObj;
+    return this.contentmdService.promote(acct_id, idOrSlug, fromDomain, toDomain, useSlugAsId);
+  }
 }

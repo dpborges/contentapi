@@ -5,9 +5,9 @@ content-type: application/json
 {
   "domain_name": "default",
   "creator_id": "{{$guid}}",
-  "content_id": "acctname1/domainnamex2",
-  "title": "content title nox3",
-  "slug":  "content-title-nox3",
+  "content_id": "acctname1/domainnameDel",
+  "title": "content title todelete",
+  "slug":  "content-title-todelete",
   "base_url": "/blog/override",
   "excerpt": "this topic is is a must read",
   "images": "string of images",
@@ -36,7 +36,7 @@ GET http://localhost:3000/contentmd/2
 GET http://localhost:3000/contentmd/content-title-no4?useSlugAsId=true
 
 ### Update content metadata attributes
-PATCH http://localhost:3000/contentmd/2
+PATCH http://localhost:3000/contentmd/22
 content-type: application/json
 
 {
@@ -45,24 +45,19 @@ content-type: application/json
 }
 
 ###  Delete domain given id
-DELETE http://localhost:3000/contentmd/3
+DELETE http://localhost:3000/contentmd/8
 
-###  Copy Content
-POST http://localhost:3000/contentmd/4/copy
+###  Promote Content from current domain to another domain, by contentid
+POST http://localhost:3000/contentmd/7/promote?toDomain=emptydomain
 content-type: application/json
 
-{
-  "acct_id":   1,
-  "creator_id": "{{$guid}}",
-  "domain_name":  "emptydomain",
-  "slug": "/some/copyslug3"
-}
+###  Promote Content from specified domain to another, by slug
+POST http://localhost:3000/contentmd/slugname/promote?fromDomain=default&toDomain=emptydomain&useSlugAsId=true
+content-type: application/json
 
 ### ==================================================================
 ### API's Above This Line Have been implemented
 ### ==================================================================
-
-
 
 ### Get all contentmd in particular domain
 GET http://localhost:3000/domain/1/contentmd

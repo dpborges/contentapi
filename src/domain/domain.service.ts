@@ -55,7 +55,7 @@ export class DomainService {
         name
       }
     });  
-    if (!domain) { throw new NotFoundException(`Domain not found`) }
+    if (!domain) { throw new NotFoundException(`Domain '${name}' not found`) }
     return domain;
   }
 
