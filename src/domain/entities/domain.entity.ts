@@ -18,15 +18,16 @@ export class Domain {
 
   @PrimaryGeneratedColumn()
   id: number;
-
+  
+  @Column()
+  acct_id: number;
+  
   @Column()
   name: string;
 
   @Column()
   base_url: string;
 
-  @Column()
-  acct_id: number;
 
   // First arg is the target relation, which is function that returns a Contentmd entity class.
   // The 2nd argument takes an instance of Contentmd entity, and returns an instance of the related entity.

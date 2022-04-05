@@ -1,4 +1,4 @@
-import { PromoteContentmdDto } from './dto/promote-contentmd.dto';
+// import { PromoteContentmdDto } from './dto/promote-contentmd.dto';
 import { 
   Controller, Get, Post, Body, Patch, Param, Delete, Query,
   NotFoundException
@@ -6,11 +6,12 @@ import {
 import { ContentmdService } from './contentmd.service';
 import { CreateContentmdDto } from './dto/create-contentmd.dto';
 import { UpdateContentmdDto } from './dto/update-contentmd.dto';
-import { Domain } from '../domain/entities/domain.entity'
+import { Domain } from '../domain/entities/domain.entity';
+import { v4 as uuidv4 } from 'uuid';
 
 // Assume acct_id will be sourced from a session object, hence its should be supplied 
 // by users on any of the requests
-const sessionObj = { acct_id: 1 }
+const sessionObj = { acct_id: 1, creator_id: uuidv4() }
 
 
 @Controller()
@@ -93,7 +94,6 @@ export class ContentmdController {
           @Query('useSlugAsId') useSlugAsId: string,
           @Query('fromDomain') fromDomain: string,
           @Query('toDomain') toDomain: string) {
-    const { acct_id } = sessionObj;
-    return this.contentmdService.promote(acct_id, idOrSlug, fromDomain, toDomain, useSlugAsId);
+    return this.contentmdService.promote(sessionObj, idOrSlug, fromDomain, toDomain, useSlugAsId);
   }
 }

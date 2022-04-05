@@ -1,23 +1,29 @@
-import { PromoteContentmdDto } from './dto/promote-contentmd.dto';
+import { PartialType } from '@nestjs/mapped-types';
+// import { PromoteContentmdDto } from './dto/promote-contentmd.dto';
 import { Injectable, Query, ConflictException, 
          NotFoundException, NotAcceptableException, BadRequestException } 
 from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, getRepository } from 'typeorm';
+import { Repository, getRepository, Connection } from 'typeorm';
 import * as R from 'ramda';
 import { CreateContentmdDto } from './dto/create-contentmd.dto';
 import { UpdateContentmdDto } from './dto/update-contentmd.dto';
 import { Contentmd } from './entities/contentmd.entity';
 import { Domain } from '../domain/entities/domain.entity';
 import { DomainService } from '../domain/domain.service';
+import { PromotionService } from '../promotion/promotion.service';
+import { Promotion } from '../promotion/entities/promotion.entity';
 
 @Injectable()
 export class ContentmdService {
 
   constructor(
     private domainService: DomainService,
+    private promotionService: PromotionService,
+    private readonly connection: Connection,
     @InjectRepository(Contentmd) private contentmdRepo: Repository<Contentmd>,
     @InjectRepository(Domain) private domainRepo: Repository<Domain>,
+    // @InjectRepository(Promotion) private promotionRepo: Repository<Promotion>,
   ) {}
 
   /**
@@ -27,27 +33,32 @@ export class ContentmdService {
    * @param contentmdDto 
    * @returns Promise<Contentmd>
    */
-  async create(acct_id: number, contentmdDto: CreateContentmdDto) {
-    let { domain_name } = contentmdDto;
+  async create(acct_id: number, createContentmdDto: CreateContentmdDto) {
+    let { domain_name } = createContentmdDto;
 
     /* ensure domain name for the given acct_id exists  */
     let foundDomain = await this.domainService.findByName(acct_id, domain_name);
     if (!foundDomain) {
-      throw new NotFoundException(`domain '${contentmdDto.domain_name}' does not exists `)
+      console.log("DID NOT FIND DOMAIN ", domain_name)
+      throw new NotFoundException(`domain '${createContentmdDto.domain_name}' does not exists `)
     } 
 
     /* checks to see if this is duplicate content */
-    const isDuplicate = await this.isDuplicate(foundDomain.id, contentmdDto);
+    const isDuplicate = await this.isDuplicate(foundDomain.id, createContentmdDto);
     if (isDuplicate) {
       throw new ConflictException(`Content already exists with this same slug, filename and filetype in '${domain_name}' domain.`)
     } 
         
     /* create instance of Content Metadata */
-    const newContentMd = this.contentmdRepo.create(contentmdDto);
-    /* tack on the domain entity to the contentmd instance and the acct_id*/
+    const newContentMd = this.contentmdRepo.create(createContentmdDto);
+    console.log("This is a contentmd entity")
+    console.log(JSON.stringify(newContentMd,null,2))
+    /* tack on the domain entity as nested object, acct_id and domain_name*/
     newContentMd.domain  = foundDomain;
     newContentMd.acct_id = acct_id;
     /* save to repository */
+    console.log("This is a contentmd entity after tacking on acctid and domain")
+    console.log(JSON.stringify(newContentMd,null,2))
     return this.contentmdRepo.save(newContentMd);
   }
 
@@ -139,7 +150,7 @@ export class ContentmdService {
    * @param id
    * @returns Contentmd
    */
-   async findById(acct_id: number, id: number) {  
+   async findById(acct_id: number, id: number): Promise<Contentmd> {  
     const [ contentmdEntity ] = await this.contentmdRepo.find({
       where: {
         acct_id,
@@ -181,53 +192,146 @@ export class ContentmdService {
     return this.contentmdRepo.remove(existingContentmd);
   }
 
-
-
   /**
-   * Promote Content from current domain to another domain, by contentid or slug.
-   * @param {number} id 
-   * @param {Object} copyContentmdDto
-   * @returns {Object} Contentmd
-   */
-  async promote(acct_id, idOrSlug, fromDomain, toDomain, useSlugAsId) {
-    /* determine if user sent id or slug and separate variables  */
+   * Promote Content from current domain to another domain, by content id or slug.
+   * Note that the matching logic on the source is either the content id or the slug,
+   * but to see if content already exists in the target, the matching logic is currently
+   * on the slug. If I need to match on anything other than slug, I would need to provide
+   * match options in the query parm, for example, matchOn=field1,field,etc.  
+   * */
+  async promote(sessionObj, idOrSlug, fromDomainName, toDomainName, useSlugAsId) {
+    const { acct_id, creator_id } = sessionObj;
+    /* determine if user sent id or slug while separating these 2 variables  */
     let id:     number = !useSlugAsId || useSlugAsId === "false" ? parseInt(idOrSlug) : 0;
     let slugId: string =  useSlugAsId && useSlugAsId === "true"  ? idOrSlug : "";
 
     /* ensure user provided the toDomain query parameter  */
-    if (!toDomain) { throw new BadRequestException(`The toDomain parameter is required`)};
+    if (!toDomainName) { throw new BadRequestException(`The toDomain parameter is required`)};
     /* ensure toDomain exists  */
-    const toDomainEntity = await this.domainService.findByName(acct_id, toDomain);
-    if (!toDomainEntity) { throw new BadRequestException(`The toDomain '${toDomain} does not exist.`)};
+    const toDomainEntity = await this.domainService.findByName(acct_id, toDomainName);
+    if (!toDomainEntity) { throw new BadRequestException(`The toDomain '${toDomainName} does not exist.`)};
 
-     /* Handle case when contentmd id is provided */
+     /* handle case where contentmd id is provided */
      if (id) {
+      const from_content_id = id;
       /* check if source content id exists */
-      let fromContentmd = await this.findById(acct_id, id);
+      let fromContentmd: Contentmd = await this.findById(acct_id, id);
+      console.log("This is the fromContentmd")
+      console.log(JSON.stringify(fromContentmd, null, 2))
       if (!fromContentmd) { 
         throw new NotFoundException(`Content id:(${id}) was not found`)
       }
-      /* obtain fromDomain from the sourceContentmd entity */
-      let { name: fromDomain }  = fromContentmd.domain;
-       /* throw exeption if fromDomain and toDomain are thesame  */
-      this.raiseErrorIfSame(toDomain, fromDomain);
-      
-      let toContentmd: PromoteContentmdDto = this.transformToPromoteDto(fromContentmd, toDomain)
+
+      /* obtain fromDomain name and the from contentmd_id  */
+      let { name: fromDomainName }      = fromContentmd.domain;
+      let { id:   fromContentmdId } = fromContentmd;
+      /* throw exception if fromDomain and toDomain are the same  */
+      this.raiseErrorIfSame(toDomainName, fromDomainName);
+
+      /* look up src id and domain id in promotion table, to see if this content had
+         previously been promoted. */
+      let { id: from_domain_id }  = fromContentmd.domain;
+      console.log(`Calling getSourceEntry() with acct_id:${acct_id}, from did:${from_domain_id} from_content_id:${from_content_id}`)
+      let sourceEntry = await this.promotionService.getSourceEntry(acct_id, from_domain_id, from_content_id);
+
+      // if no source entry found in promotion table for contentid, create src entry in promtion table,
+      // clone contentmd record, save clone in target domain and create target entry in promotion table
+      if (!sourceEntry) {
+        console.log("The sourcEntry was NOT FOUND, link the two entries  ");
+
+        /* establish connection and start transaction */
+        const queryRunner = this.connection.createQueryRunner();  // create new QueryRunner
+        await queryRunner.connect();           // establish connection
+        await queryRunner.startTransaction();  // start transaction
+
+        try {                                  // Wraps transaction code in a 
+          /* clone and modify the fromContentmd record so it can be saved in target domain */
+          let modifiedContentmd = 
+            this.modifyContentmd(fromContentmd, toDomainEntity, false, sessionObj); /* updates target domain */
+          /* create copy of src content in the toDomain, and obtain contentmd_id */
+          let toContentmd = await queryRunner.manager.save(modifiedContentmd);
+          console.log(`This is Contentmd saved in the target`)
+          console.log(`${JSON.stringify(toContentmd,null,2)}`)
+
+          /* Link the 2 entries in the promotion table */
+          sourceEntry = await this.promotionService.saveEntry(acct_id, fromContentmd, 0, 0);
+          console.log(`This is first entry created in the promotion table`)
+          console.log(`${JSON.stringify(sourceEntry,null,2)}`)
+          let parent_contentmd_id = fromContentmdId;
+          let parent_id = sourceEntry.id;
+          let targetEntry = await this.promotionService.saveEntry(acct_id, toContentmd, parent_contentmd_id,  parent_id);
+          console.log(`This is target entry created in the promotion table`)
+          console.log(`${JSON.stringify(targetEntry,null,2)}`)
+
+          // Commit transaction
+          await queryRunner.commitTransaction();
+
+        } catch (err) {
+          console.log(`Transaction has been rolled back`)
+          console.log(err)
+          await queryRunner.rollbackTransaction(); // Rollback entire transaction on error
+        } finally {
+          await queryRunner.release();  // release/close queryRunner
+        }
+        // If srce entry found, use the target contentmd id (in target entry) to update contentmd in target domain */
+        } else {  
+          console.log("The following sourceEntry found");
+          console.log(JSON.stringify(sourceEntry, null,2 ));
+          /* Look for an entry in the target domain where parent_id is equal to src entry id */
+          let tgtEntry = await this.promotionService.getTargetEntry(acct_id, toDomainEntity.id, sourceEntry.id);
+          /* pull the target contentmd id */
+          let tgtContentmdId = tgtEntry.contentmd_id;
+          console.log(" the tgtContentmdId is ", tgtContentmdId);
+          /* clone and modify the fromContentmd record so it can be saved in target domain */
+          let modDirective =  { 
+              objInstance: fromContentmd,
+              setProps: { creator_id: sessionObj.creator_id, domain_id: toDomainEntity.id, id: tgtContentmdId },
+              deleteProps: []
+          }
+          console.log("THIS IS FROM CONTENTMD")
+          console.log(JSON.stringify(fromContentmd))
+          let modedcontentmd = this.modifyContentmdInstance(modDirective); 
+          console.log("THIS IS MODIFIED CONTENTMD")
+          console.log(JSON.stringify(modedcontentmd))
+
+          //   this.modifyContentmd(fromContentmd, 
+          //      setterValuestoDomainEntity, true, sessionObj); /* updates target domain */
+          //       }
+          // let modifiedContentmd = 
+          //   this.modifyContentmd(fromContentmd, toDomainEntity, true, sessionObj); /* updates target domain */
+            console.log(" this is moithe tgtContentmdId is ", tgtContentmdId);
+            /* use the target contentmd id to promote the content */
+          // modifiedContentmd.id = tgtContentmdId;
+          // let toContentmd = await queryRunner.manager.save(modifiedContentmd);
+        }
+     
+
+     
+     /* NEXT STEPs
+      - 
+      - 
+         - use findBySlug  to match and determine if content in target domain
+         - modify tranformToPromoteDto to remove id if does not exists and 
+           to assign the id from the contentmd record just returned from target domain,
+           so entity is updated instead of created.
+         - Once I have completed above 2 changes, do a save, and test manually to seee
+           if working as expected
+      */ 
+      // let promoteContentmdDto: PromoteContentmdDto = 
+      //     this.transformToPromoteDto(fromContentmd, toDomain);
 
 
-      return toContentmd;
+      return sourceEntry;
     }
 
     /* Handle case when slug is provided as id */ 
     if (slugId) {
       /* ensure fromDomain is provided, if not, set it to default domain  */
-      if (!fromDomain) { fromDomain = 'default'};
-      /* throw exeption if fromDomain and toDomain are thesame  */
-      this.raiseErrorIfSame(toDomain, fromDomain);
+      if (!fromDomainName) { fromDomainName = 'default'};
+      /* throw exeption if fromDomain and toDomain names are thesame  */
+      this.raiseErrorIfSame(toDomainName, fromDomainName);
     }
 
-   
-    
 
       
     /* Cast sourceContent to the CreateContentDto type by updating sourceContent properties 
@@ -291,20 +395,91 @@ export class ContentmdService {
       throw new NotAcceptableException(errMsg)
     }
   }
-
-  transformToPromoteDto(fromContentmd, toDomain) {
-    /* change domain name to the toDomain */
-    fromContentmd.domain_name = toDomain;   
-
-    /* delete properties that are not in the create contentmd dto   */
-    delete fromContentmd.id;                   /* delete contentmd id */
-    delete fromContentmd.domain;               /* delete the domain nested object */
-    delete fromContentmd.domain_id;            /* delete the domain_id */
-    
-    return fromContentmd;
-  }
-
- 
   
+  modifyContentmd(fromContentmd: any, 
+                       toDomainEntity: Domain,
+                       includeId: boolean = false,
+                       sessionObj) {
+    // clone fromContentmd object and append additional required fields 
+    let copyOfFromContentmd: any = {
+      ...fromContentmd, 
+      creator_id: sessionObj.creator_id,
+      domain_id: toDomainEntity.id
+    }; 
+
+    // delete fields not required i Contentmd type
+    /* note, id property is frozen or configurable is set to false; to delete, make it configurable:true */
+    Object.defineProperty(copyOfFromContentmd, 'id', {configurable: true}); 
+    !includeId && delete copyOfFromContentmd.id;
+    delete copyOfFromContentmd.create_date;
+    delete copyOfFromContentmd.update_date;
+    
+    const clonedContentmd = this.contentmdRepo.create(copyOfFromContentmd);
+       
+    return clonedContentmd;
+  }
+  
+  // setPrimaryId(classInstance, id ) {
+  //   const idLens = R.lensProp('id');
+  //   const newClassInstance = R.set(idLens, id, classInstance)
+  //   return newClassInstance
+  // }
+
+  // setCreatorId(classInstance, creator_id ) {
+  //   const creatorLens = R.lensProp('creator_id');
+  //   const newClassInstance = R.set(creatorLens, creator_id, classInstance)
+  //   return newClassInstance
+  // }
+
+  // setDomainId(classInstance, domain_id ) {
+  //   const domainLens = R.lensProp('domain_id');
+  //   const newClassInstance = R.set(domainLens, domain_id, classInstance)
+  //   return newClassInstance
+  // }
+
+  // cloneClassInstance(classInstance) {
+  //   return {...classInstance}
+  // }
+
+  modifyContentmdInstance({objInstance, setProps, deleteProps }) {
+    const { creator_id, domain_id, id  } = setProps;
+    // const { dCreateDate, dUpdateDate, dDomainId  } = deleteValues;
+
+    const cloneObjectInstance = (objInstance) => {
+      return objInstance
+    }
+
+    const setCreatorId = (objInstance) => {
+      if (!creator_id) return objInstance
+      const creatorLens = R.lensProp('creator_id');
+      return R.set(creatorLens, creator_id, objInstance);
+    }
+
+    const setDomainId = (objInstance ) => {
+      if (!domain_id) { return objInstance};
+      const domainLens = R.lensProp('domain_id');
+      return R.set(domainLens, domain_id, objInstance);
+    }
+
+    const setPrimaryId = (objInstance) => {
+      if (!id) {return objInstance};
+      const idLens = R.lensProp('id');
+      const newInstance = R.set(idLens, id, objInstance);
+      return newInstance;
+    }
+
+    const modify = R.pipe(
+        cloneObjectInstance,
+        setCreatorId,
+        setDomainId,
+        setPrimaryId
+    )
+    
+    console.log("This is object instance INPUT ");
+    console.log(objInstance);
+    console.log("This is new object instance ");
+    console.log(modify(objInstance));
+    // return modify(directive);
+  }
 
 }

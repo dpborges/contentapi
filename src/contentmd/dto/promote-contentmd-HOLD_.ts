@@ -5,6 +5,10 @@ import { Domain } from  '../../domain/entities/domain.entity';
  * The PromoteContentDto contains optional fields that can be changed on the copy
  */
 export class PromoteContentmdDto {
+
+  @IsOptional()
+  @IsNumber()
+  id: number;
   
   @IsNumber()
   acct_id: number;

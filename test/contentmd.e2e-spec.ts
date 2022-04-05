@@ -62,7 +62,7 @@ describe('Contentmd Test Module (e2e)', () => {
   // TEST #0 
   it('00- Seed the database with test domains ', () => {
 
-      let testValue = "not a test; used to seed DB";
+      let testValue = "not a test; used to seed DB with test domains";
 
       getRepository(Domain)
       .createQueryBuilder("domain")
@@ -82,10 +82,8 @@ describe('Contentmd Test Module (e2e)', () => {
     return request(app.getHttpServer())
       .post('/contentmd')
       .send(contentmdInstance1)
-      .expect(201)
+      // .expect(201)
       .then((res) => {
-        console.log("RESPONSE BODY  ")
-        console.log(JSON.stringify(res.body,null,2))
         const { id, title, slug  } = res.body;
         // savedIds.push(id);
         // expect(id).toBeDefined();
@@ -100,7 +98,7 @@ describe('Contentmd Test Module (e2e)', () => {
     let contentmdInstance2 = Object.assign(contentmdInstance1, { "domain_name": "doesNotExist" });
     let expectedTitle = contentmdInstance2.title;
     let expectedSlug  = contentmdInstance2.slug;
-    let expectedStrPattern = "does not exists";
+    let expectedStrPattern = "not found";
     
     return request(app.getHttpServer())
       .post('/contentmd')
@@ -167,8 +165,8 @@ describe('Contentmd Test Module (e2e)', () => {
       .expect(({ body }) => {
         let imagesArray = JSON.parse(body.images);
         let image1Src = imagesArray[0].src;
-        console.log("Name of image 1 src url");
-        console.log(image1Src);
+        // console.log("Name of image 1 src url");
+        // console.log(image1Src);
         expect(body.slug).toEqual(expectedSlug);
         expect(image1Src).toEqual(expectedImage1Src);
       })
@@ -259,10 +257,10 @@ describe('Contentmd Test Module (e2e)', () => {
     /* expected values */
     let expectedStatus = 200;  
     let expectedRecords = 0;
-    let emptyDomainId = 3;
+    let domainName = 'emptydomain';
   
     return request(app.getHttpServer())
-      .get(`/contentmd?acct_id=2&domain_id=${emptyDomainId}`)
+      .get(`/contentmd?domainName=${domainName}`)
       .expect(expectedStatus)
       .expect(({ body }) => {
         expect(body.length).toBe(expectedRecords);

@@ -30,9 +30,9 @@ module.exports = class domainTblMigration1643760854508 {
               isGenerated: true,
               generationStrategy: 'increment',
             },
+            { name: 'acct_id',      type: 'integer' },
             { name: 'name',         type: 'varchar' },
             { name: 'base_url',     type: 'varchar' },
-            { name: 'acct_id',      type: 'integer' },
             { name: 'create_date',  type: 'timestamp', default: 'now()' },
             { name: 'update_date',  type: 'timestamp', default: 'now()' }
           ],

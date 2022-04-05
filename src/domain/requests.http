@@ -3,7 +3,7 @@ POST http://localhost:3000/domains
 content-type: application/json
 
 {
-  "name": "domain4",
+  "name": "staging",
   "base_url": "/blog"
 }
 

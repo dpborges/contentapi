@@ -40,7 +40,6 @@ module.exports = class contentmdTblMigration1645058762483 {
             { name: 'file_type',    type: 'varchar' },
             { name: 'word_cnt',     type: 'integer' },
             { name: 'lang',     type: 'varchar'     },
-            // { name: 'domain',   type: 'varchar'     },
             { name: 'create_date', type: 'timestamp'},
             { name: 'update_date', type: 'timestamp'}
           ],
