@@ -56,10 +56,20 @@ DO FOLLOWING:
       so they are auto generated.
     - (DONE)update use case where promoting to existing linked target, that only the update_date is deleted so
       it gets auto generated and create_date remains on the contentmd record getting promoted
-    - modify promote to return the toContentmd object
-    - test modifyContentmdInstance with base case#1 and Case#
-    - Cleanup all console logs and comments
-    - test case#1 and case# manually one more time
+    - (DONE) modify promote to return the toContentmd object
+    - (DONE) test modifyContentmdInstance for  base case#1 and Case#2
+    - (DONE) Cleanup all console logs and comments
+    - (DONE) test case#1 and case# manually one more time
+    - (DONE) Fix color convention in sample datasets
+    - (DONE) define database process around maintaining promotion links, when record is deleted.
+    - (DONE) define process for detecting revese promotion
+    - (DONE) implement process for detecting reverse promotion
+    - set up manual testing to test getChildEntryIds method
+    - See if I can simulate the delete scenarios. Look at unit test cases as one solution,
+      creating test enpoints (create and delete), or create endpoints for the services getChildRows,
+      getParentRows
+    - Modify the create contentmd service to automatically create default domain if its does 
+      not exist
     - begin writing e2e test cases for promotion service 
     
 - Run test:e2e to ensure all the routes are still working.

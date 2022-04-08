@@ -5,11 +5,11 @@ content-type: application/json
 {
   "domain_name": "default",
   "creator_id": "{{$guid}}",
-  "content_id": "acctname1/somedomainnamedt6",
-  "title": "content title promo test6",
-  "slug":  "content-title-promo-test6",
+  "content_id": "acctname1/somedomainnamedt8",
+  "title": "content title promo test8",
+  "slug":  "content-title-promo-test8",
   "base_url": "/blog/override",
-  "excerpt": "this topic is is a must read by t6",
+  "excerpt": "this topic is is a must read by t8",
   "images": "/blog/image01,alt01|/blog/image02,alt02",
   "content_type": "post",
   "file_type": "md",
@@ -35,12 +35,12 @@ GET http://localhost:3000/contentmd/2
 GET http://localhost:3000/contentmd/content-title-no4?useSlugAsId=true
 
 ### Update content metadata attributes
-PATCH http://localhost:3000/contentmd/17
+PATCH http://localhost:3000/contentmd/21
 content-type: application/json
 
 {
-  "title": "content title promo test6 2nd promotion",
-  "slug":  "content-title-promo-test6-2nd-promtion",
+  "title": "content title promo test8 2ndpush",
+  "slug":  "content-title-promo-test8-2ndpush",
   "base_url": "/blog/override"
 }
 
@@ -48,7 +48,7 @@ content-type: application/json
 DELETE http://localhost:3000/contentmd/8
 
 ###  Promote Content from current domain to another domain, by contentid
-POST http://localhost:3000/contentmd/17/promote?toDomain=staging
+POST http://localhost:3000/contentmd/22/promote?toDomain=default
 content-type: application/json
 
 ###  Promote Content from specified domain to another, by slug
