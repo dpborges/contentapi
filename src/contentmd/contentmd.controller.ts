@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Assume acct_id will be sourced from a session object, hence its should be supplied 
 // by users on any of the requests
-const sessionObj = { acct_id: 1, creator_id: uuidv4() }
+const sessionObj = { acct_id: 100, creator_id: uuidv4() }
 
 
 @Controller()

@@ -11,7 +11,7 @@ import { domains } from './seeds/contentmd.seed';  /* domain seed data */
 describe('Contentmd Test Module (e2e)', () => {
   let app: INestApplication;
 
-  // Keep in mind our jest-e2e.json file has been configured to call the setUp.ts script,
+  // Keep in mind our jest-e2e.json file has been configured to called the setUp.ts script,
   // which deletes the database before all e2e tests, and closes the application 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({

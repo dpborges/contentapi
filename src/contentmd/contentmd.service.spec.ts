@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ContentmdService } from './contentmd.service';
+import { awsS3IdBuild, awsS3IdSplit } from './utils';
 
 describe('ContentmdService', () => {
   let service: ContentmdService;
@@ -12,7 +13,9 @@ describe('ContentmdService', () => {
     service = module.get<ContentmdService>(ContentmdService);
   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+  it('dummy service', () => {
+    let expectedValue = 0;
+    expect(0).toBeDefined(expectedValue);
   });
+
 });

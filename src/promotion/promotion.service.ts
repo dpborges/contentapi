@@ -60,25 +60,18 @@ export class PromotionService {
   //   });  
   // }
 
-  // Looks for an entry in the target domain where parent_id is equal to src entry id
+  // Looks for an entry in the target domain where parent_id is equal to src entry id.
+  // This effectively will determine if the src entry has a child (aka promotion relation) in 
+  // the target domain.
   getEntryByParentId(acct_id, domain_id, parent_id) {
-    let whereObj = { 
+    type searchObj = { acct_id: number, domain_id?: number, parent_id: number };
+    let whereObj: searchObj = { 
       acct_id, 
       domain_id, 
       parent_id  
-    } ;
-    if (!domain_id) {
-      whereObj = { 
-        acct_id, 
-        parent_id  
-      }
-    }
+    };
     return this.promotionRepo.findOne({
-      where: { 
-        acct_id, 
-        domain_id, 
-        parent_id  
-      } 
+      where: whereObj 
     });  
   }
   
@@ -127,10 +120,7 @@ export class PromotionService {
   async getChildEntryIds(acct_id, promotionEntity) {
     const id = promotionEntity.id
     const ids = this.getEntryByParentId(acct_id, null, id)
-
   }
-  
-
   
 
 }

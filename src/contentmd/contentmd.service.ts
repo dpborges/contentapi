@@ -246,7 +246,8 @@ export class ContentmdService {
 
     // handles case where content gets promoted for first time (relates the 2 contentmd records)
     // and case where it was content is being promoted a subsequent time.
-    // case#1 - link both contendmd objects if source entry not found in promotion table (no entry means source was never promoted)
+    // case#1 - if source entry not found in promotion table (no entry means source was never promoted), create
+    //          target contentmd and link source and target contentmd's in promotion table
     // case#2 - if source entry found, use target contentmd id, in promotion table, to push contentmd to target domain
     if (!sourceEntry) { //case#1
       console.log("Inside CASE#1")
@@ -262,8 +263,13 @@ export class ContentmdService {
           deleteProps: ['id', 'create_date', 'update_date']
         }
         let modifiedContentmd = this.modifyContentmdInstance(modDirective); 
+
+        /* rebuild the content_id string to replace src domain name with target domain name */
+        let awsS3Id = this.awsS3IdBuild(sessionObj.acct_id, toDomainName, modifiedContentmd.slug, modifiedContentmd.title )
+        /* update the content_id string with the rebuilt id using target domain */
+        modifiedContentmd.content_id = awsS3Id;
       
-        /* create contentmd intsance to target domain */
+        /* create contentmd instance in target domain */
         let contentmdEntity = this.contentmdRepo.create(modifiedContentmd);
         toContentmd = await queryRunner.manager.save(contentmdEntity);
         
@@ -287,6 +293,10 @@ export class ContentmdService {
       }
   } else {  // case#2 - found source entry
       console.log("Inside CASE#2")
+
+      /* check if src entry has a promotion relation in target domain. Do this by checking 
+         to see if src entry row id exist as a parent id in target domain. */
+
       /* Look for an entry in the target domain where parent_id is equal to src entry id */
       let tgtEntry = await this.promotionService.getEntryByParentId(acct_id, toDomainEntity.id, sourceEntry.id);
 
@@ -358,7 +368,7 @@ export class ContentmdService {
   }
   /**
    * Takes a modDirective (or modification directive) in order to make changes to source
-   * contentmd record, before saving in target domain. For example, deleting the id 
+   * contentmd record before saving in target domain. For example, deleting the id 
    * property from source contentmd record, so one a new unique id is automatically generated 
    * for target.
    * @param   modDirective
@@ -416,6 +426,31 @@ export class ContentmdService {
     const modifiedInstance = modify(objInstance);
 
     return modifiedInstance;
+  }
+
+  /** 
+   * Build S3 id (aka path) where suffix resolves in precedence order. This allows you
+   * to pass multiple suffixes. If one is undefined it will default to the other. 
+   * For example, if you pass slug as pimarySfx and title as secondarySfx and slug is undefined, 
+   * the title will be used as the suffix.
+   * @param   acctId
+   * @param   domainName
+   * @param   primarySfx
+   * @param   secondarySfx
+   * @returns string
+   * */ 
+  awsS3IdBuild = (acctId, domainName, primarySfx, secondarySfx) => {
+    let suffix = primarySfx || secondarySfx;
+    return `${acctId}/${domainName}/${suffix}`;
+  }
+  
+  /**
+   * Splits out the awsS3Id so you can destructure the result  
+   * @param s3Id
+   * @returns string[]
+   **/ 
+  awsS3IdSplit  = (s3Id) => {
+    return s3Id.split('/')
   }
 
 }

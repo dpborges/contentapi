@@ -32,7 +32,7 @@ export class Promotion {
   parent_contentmd_id: number;
 
   @Column()
-  parent_id: number;  /* this self referencing id */
+  parent_id: number;  /* this self referencing table id */
 
   @CreateDateColumn()
   create_date: Date;
