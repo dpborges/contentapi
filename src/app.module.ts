@@ -12,6 +12,7 @@ import { DomainModule } from './domain/domain.module';
 import { ContentmdModule } from './contentmd/contentmd.module';
 import { PromotionModule } from './promotion/promotion.module';
 import { PromotionService } from './promotion/promotion.service';
+import { ProjectModule } from './project/project.module';
 
 
 // following format required because nestjs tsconfig settings
@@ -31,7 +32,7 @@ const cookieSession = require('cookie-session');
     }),   
     // -- Below used when using ormconfig.js as the config source for both nestjs and typeorm
     TypeOrmModule.forRoot(),   // reads config from ormconfig.js or env variables
-    DomainModule, ContentmdModule, PromotionModule
+    DomainModule, ContentmdModule, PromotionModule, ProjectModule
     // -- Below used for using config only with nestjs, and not shared with typeorm
     // TypeOrmModule.forRootAsync({   
     //     inject: [ConfigService],

@@ -3,14 +3,14 @@ import { Domain } from  '../../domain/entities/domain.entity';
 
 export class CreateContentmdDto {
 
-  // @IsString()
-  // creator_id: string;
+  @IsString()
+  creator_id: string;
 
-  // @IsString()
-  // domain_name: string;
+  @IsString()
+  domain_name: string;
 
-  // @IsString()
-  // content_id: string;
+  @IsString()
+  content_id: string;
 
   @IsString()
   title: string;
@@ -33,9 +33,6 @@ export class CreateContentmdDto {
 
   @IsString()
   content_type: string;
-
-  @IsString()
-  file_name: string;
 
   @IsString()
   file_type: string;

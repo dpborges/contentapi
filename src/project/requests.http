@@ -1,5 +1,17 @@
+### Create a project
+POST http://localhost:3000/project/myThirdProject
+
+###  Delete project by id
+DELETE http://localhost:3000/project/5
+
+
+
+// =================================================================
+// USE REQUESTS BELOW AS REFERENCE ONLY
+// =================================================================
+
 ### xx Create a new domain
-POST http://localhost:3000/domains
+POST http://localhost:3000/project/myfirstproject
 content-type: application/json
 
 {

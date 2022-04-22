@@ -11,17 +11,17 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Assume acct_id will be sourced from a session object, hence its should be supplied 
 // by users on any of the requests
-const sessionObj = { acct_id: 100, creator_id: uuidv4() }
+const sessionObj = { acct_id: 100, creator_id: uuidv4() };
 
 
 @Controller()
 export class ContentmdController {
   constructor(private readonly contentmdService: ContentmdService) {}
 
-  @Post('contentmd')
-  create(@Body() body: CreateContentmdDto) {
-    const { acct_id } = sessionObj;
-    return this.contentmdService.create(acct_id, body);
+  // (IN PROGRESS)
+  @Post('domain/:name/content')
+  create( @Param('name') name: string, @Body() body: CreateContentmdDto) {
+    return this.contentmdService.create(sessionObj, body, name);
   }
 
   // @Post(':id/copy')
@@ -36,13 +36,14 @@ export class ContentmdController {
   // }
   // ***** LEAVE THIS BLOCK COMMENTED **********
 
-  @Get('contentmd')
-  findAll(@Query('domainName') domainName: string,
-          @Query('sortDescBy') sortDescBy: string,
-          @Query('sortAscBy') sortAscBy: string) {
-    let acct_id: number = sessionObj.acct_id;
-    return this.contentmdService.findAll(acct_id, domainName, sortAscBy, sortDescBy);
-  }
+  // (NOT STARTED)
+  // @Get('contentmd')
+  // findAll(@Query('domainName') domainName: string,
+  //         @Query('sortDescBy') sortDescBy: string,
+  //         @Query('sortAscBy') sortAscBy: string) {
+  //   let acct_id: number = sessionObj.acct_id;
+  //   return this.contentmdService.findAll(acct_id, domainName, sortAscBy, sortDescBy);
+  // }
   
   // @Get()
   // findAllByAcctAndDomainId(
@@ -65,35 +66,40 @@ export class ContentmdController {
   //   // return this.contentmdService.findByAcctDomainIdAndSlug(parseInt(acct_id), parseInt(domain_id), slug);
   // }
 
-  @Get('contentmd/:idOrSlug')
-  async findByIdOrSlug(@Param('idOrSlug') idOrSlug: string,
-                @Query('useSlugAsId') useSlugAsId: string,
-                @Query('domainName') domainName: string) {
-    const { acct_id } = sessionObj;
-    const contentmd = await this.contentmdService.findByIdOrSlug(acct_id, idOrSlug, domainName, useSlugAsId);
-    if (!contentmd) {
-      throw new NotFoundException(`Content not found for id: ${idOrSlug}`)
-    }
-    return contentmd;
-  }
+  // (NOT STARTED)
+  // @Get('contentmd/:idOrSlug')
+  // async findByIdOrSlug(@Param('idOrSlug') idOrSlug: string,
+  //               @Query('useSlugAsId') useSlugAsId: string,
+  //               @Query('domainName') domainName: string) {
+  //   const { acct_id } = sessionObj;
+  //   const contentmd = await this.contentmdService.findByIdOrSlug(acct_id, idOrSlug, domainName, useSlugAsId);
+  //   if (!contentmd) {
+  //     throw new NotFoundException(`Content not found for id: ${idOrSlug}`)
+  //   }
+  //   return contentmd;
+  // }
 
-  @Patch('contentmd/:id')
-  update(@Param('id') id: string, @Body() updateContentmdDto: UpdateContentmdDto) {
-    const { acct_id } = sessionObj;
-    return this.contentmdService.update(acct_id, parseInt(id), updateContentmdDto);
-  }
+  // (NOT STARTED)
+  // @Patch('contentmd/:id')
+  // update(@Param('id') id: string, @Body() updateContentmdDto: UpdateContentmdDto) {
+  //   const { acct_id } = sessionObj;
+  //   return this.contentmdService.update(acct_id, parseInt(id), updateContentmdDto);
+  // }
 
-  @Delete('contentmd/:id')
-  remove(@Param('id') id: string) {
-    const { acct_id } = sessionObj;
-    return this.contentmdService.remove(acct_id, parseInt(id));
-  }
+  // (NOT STARTED)
+  // @Delete('contentmd/:id')
+  // remove(@Param('id') id: string) {
+  //   const { acct_id } = sessionObj;
+  //   return this.contentmdService.remove(acct_id, parseInt(id));
+  // }
 
-  @Post('contentmd/:idOrSlug/promote')
-  promote(@Param('idOrSlug') idOrSlug: string,
-          @Query('useSlugAsId') useSlugAsId: string,
-          @Query('fromDomain') fromDomain: string,
-          @Query('toDomain') toDomain: string) {
-    return this.contentmdService.promote(sessionObj, idOrSlug, fromDomain, toDomain, useSlugAsId);
-  }
+  // (NOT STARTED)
+  // @Post('contentmd/:idOrSlug/promote')
+  // promote(@Param('idOrSlug') idOrSlug: string,
+  //         @Query('useSlugAsId') useSlugAsId: string,
+  //         @Query('fromDomain') fromDomain: string,
+  //         @Query('toDomain') toDomain: string) {
+  //   return this.contentmdService.promote(sessionObj, idOrSlug, fromDomain, toDomain, useSlugAsId);
+  // }
+  
 }

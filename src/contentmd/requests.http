@@ -1,19 +1,18 @@
 ###  Create a new domain
-POST http://localhost:3000/contentmd
+POST http://localhost:3000/domain/default/content
 content-type: application/json
 
 {
-  "domain_name": "default",
-  "creator_id": "{{$guid}}",
-  "content_id": "acctname1/somedomainnamedt8",
   "title": "content title promo test8",
   "slug":  "content-title-promo-test8",
-  "base_url": "/blog/override",
+  "baseUrl": "/blog/override",
   "excerpt": "this topic is is a must read by t8",
   "images": "/blog/image01,alt01|/blog/image02,alt02",
   "content_type": "post",
+  "file_name": "promo-test8",
   "file_type": "md",
-  "word_cnt":  382 
+  "word_cnt":  382, 
+  "content" : "This is the blog content"
 }
 
 ### Get all contentmd in the default domain_id sorted in descending order by createdate
@@ -45,7 +44,7 @@ content-type: application/json
 }
 
 ###  Delete domain given id
-DELETE http://localhost:3000/contentmd/8
+DELETE http://localhost:3000/domain/default/contentmd/8
 
 ###  Promote Content from current domain to another domain, by contentid
 POST http://localhost:3000/contentmd/22/promote?toDomain=default

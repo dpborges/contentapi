@@ -65,28 +65,36 @@ DO FOLLOWING:
     - (DONE) define process for detecting revese promotion
     - (DONE) implement process for detecting reverse promotion
     - I am considering a design change where the contentmd id is persistent thru
-      the various domains as they content gets promoted downstream. To accomplish this, 
+      the various domains as the content gets promoted downstream. To accomplish this, 
       I'm thinking of using a composite key, comprised of acct_id, content_id, domain_id.
       The composite key will be used as the primary key id.
     - Take a look at the Sample Data Sets (2) excel sheet. In scenario #1 you will see that
       it seems to simplify things by maintaining a consistent contentmd id and eliminating
-      the parent CID, as I do no longer need to maintain that linkage, other than the Parent id
+      the parent CID, as I no longer need to maintain that linkage, other than the Parent id
     - NEXT STEPS: 
-       1) my next step is to convert the rest of the scenarios in Sample Data Sets (2) to      
+       1) (DONE) my next step is to convert the rest of the scenarios in Sample Data Sets (2) to      
           use this structure...and confirm it is simpler.
-       2) if step 1 looks straight forward, convert the reverse promotion spreadsheet 
+       2) (DONE) if step 1 looks straight forward, convert the reverse promotion spreadsheet 
           to use new table structure (using composite key)..confirm if simpler to detect 
           reverse promotion using this structure.
-       3) Outline process in spreadsheet for ContentPromotedFromOtherDomain. 
+       3) (DONE) Outline process in spreadsheet for ContentPromotedFromOtherDomain. 
           Confirm if process is simpler. NOTE THIS WAS MOST DIFFICULT IMPLEMENTION
           If proves to be simpler with new promotion table structure, proceed to step 4
-       4) Lastly, update Delete Process on Spreadsheet to use new contentmd composite key
+       4) (DONE) Lastly, update Delete Process on Spreadsheet to use new contentmd composite key
           and new promotion structure. If I can confirm that steps 3 and 4 prove to be
           simpler, move on to refactoring and implementation
     - Refactor contentmd entity to use composite key. Question is, do I need to provide
       all 3 parts everytime as the id or does database generate one id I can use
       on controller requests. If need to provide separate REST endpoints will change.
-    - Refactor contendmd controller methods to use new composite key
+    - Refactor contendmd controller and service methods to use new composite key
+       o (DONE) refactor Post content / create method
+       o Update the migration with new contentmd entity definition
+       o create/update following create content test case
+         create domain automatically when create first piece of content in account
+         detect duplicate content detected
+         blog_url is used from domain when not supplied on content
+         blog_url on content overrides url specified in domain
+    - Create and build test cases for contentmd controller
     - Refactor promotion services; start with scenario#4 depicted in delete process to
        build e2e promotion test cases.
     - Refactor Reverse promotion

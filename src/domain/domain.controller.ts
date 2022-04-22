@@ -6,7 +6,7 @@ import { UpdateDomainDto } from './dto/update-domain.dto';
 
 // Assume acct_id will be sourced from a session object, hence its should be supplied 
 // by users on any of the requests
-let sessionObj = { acct_id:1 }
+let sessionObj = { acct_id: 100 }
 
 
 @Controller('/domains')

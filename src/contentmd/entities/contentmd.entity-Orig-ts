@@ -1,35 +1,31 @@
 import { 
   Entity, 
   Column, 
-  PrimaryColumn, 
   PrimaryGeneratedColumn, 
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn 
 } from 'typeorm'; // these are decorators
-import { nanoid } from 'nanoid';
 import { Domain } from '../../domain/entities/domain.entity';
+import { nanoid } from 'nanoid';
 
 @Entity()
 export class Contentmd {
 
-  // @PrimaryGeneratedColumn()
-  // id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @PrimaryColumn()
+  @Column()
   acct_id: number;
 
-  @PrimaryColumn()
-  content_id: string;
-
-  @PrimaryColumn()
+  @Column()
   domain_id: number;
-
-  @Column("varchar", { default: "aws id" } )
-  store_id:string;
 
   @Column("uuid")
   creator_id: string;
+
+  @Column()
+  content_id: string;
 
   @Column()
   title: string;
@@ -49,9 +45,6 @@ export class Contentmd {
 
   @Column()
   content_type: string;
-
-  @Column()
-  file_name: string;
 
   @Column()
   file_type: string;
